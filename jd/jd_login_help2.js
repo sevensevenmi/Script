@@ -235,7 +235,7 @@ function createStyle() {
   }
   #account_list{
     border: 4px solid #f7bb10;
-    border-radius: ${getRem(0.1)};
+    border-radius: ${getRem(0.2)};
     height: ${getRem(1.98)};
     overflow-x: hidden;
     overflow-y: scroll;
@@ -247,7 +247,7 @@ function createStyle() {
      display: flex;
      align-items: center;
      border: 1px solid #eee;
-     border-radius: 15px;
+     border-radius: ${getRem(0.2)};
      box-sizing: border-box;
      position: relative;
      margin-bottom: ${getRem(0.1)};
