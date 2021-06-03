@@ -293,13 +293,13 @@ function createStyle() {
   }
   .cususer_info p {
     font-weight: bold;
-    font-size: ${getRem(0.08)};
+    font-size: ${getRem(0.1)};
     line-height: 1.8;
   }
   .cususer_info span{
     font-weight: unset;
     color: #666;
-    font-size: ${getRem(0.06)};
+    font-size: ${getRem(0.08)};
     line-height: 1.8;
   }
   .not_content{
