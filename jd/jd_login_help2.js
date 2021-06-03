@@ -150,7 +150,7 @@ function createStyle() {
     text-align: center;
     padding: 0 ${getRem(0.13)} 0;
     position: absolute;
-    top: ${getRem(0.14)};
+    top: ${getRem(0.1)};
     background: #fff;
     left: 50%;
     transform: translateX(-50%);
@@ -235,11 +235,11 @@ function createStyle() {
   }
   #account_list{
     border: 4px solid #f7bb10;
-    border-radius: ${getRem(0.2)};
+    border-radius: ${getRem(0.3)};
     height: ${getRem(1.98)};
     overflow-x: hidden;
     overflow-y: scroll;
-    padding: ${getRem(0.1)};
+    padding: ${getRem(0.06)} ${getRem(0.1)};
     box-sizing: border-box;
   }
   .cus-avatar{
@@ -310,10 +310,15 @@ function createStyle() {
     align-items: center;
   }
 
-  .cus-active,.cus-err{
+  .cus-err{
     border-color: red;
     animation: flashred 2s linear infinite;
     box-shadow: 0 0 4px red;
+  }
+
+  .cus-active{
+    border-color: #91d5ff;
+    box-shadow: 0 0 4px #91d5ff;
   }
 
   @keyframes flashred{
