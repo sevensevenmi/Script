@@ -90,6 +90,10 @@ const cookiesRemark = initBoxJSData();
 function createStyle() {
   return `
 <style>
+   #cus-mask p,#cus-mask span{
+    padding: 0;
+    margin: 0;
+   }
   .tool_bars{
     position: fixed;
     top:50%;
@@ -251,6 +255,7 @@ function createStyle() {
      box-sizing: border-box;
      position: relative;
      margin-bottom: ${getRem(0.1)};
+     height: ${getRem(0.5)};
   }
   .avatar_img{
     width: ${getRem(0.35)};
