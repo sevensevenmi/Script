@@ -422,7 +422,7 @@ function createScript() {
     _input.style.position="fixed";
     _input.style.right="-1px";
     document.body.prepend(_input);
-    _input.value = "pt_key="+pk+";pt_pin="+pp;
+    _input.value = "pt_key="+pk+";pt_pin="+pp+";";
     _input.focus();
     _input.select();
     document.execCommand('copy');
