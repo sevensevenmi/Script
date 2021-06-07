@@ -13,7 +13,8 @@ try {
   if (condition) {
     condition = condition.split(',');
     const newData = cookies.filter(
-      (_, index) => condition.indexOf(`${index + 1}`) === -1);
+      (item, index) => condition.indexOf(`${index + 1}`) === -1 ||
+        condition.indexOf(item.userName) === -1);
     if (cookies.length !== newData.length) {
       $.write(JSON.stringify(newData, null, `\t`), CacheKey);
       $.notify('删除相关 ck 成功', '', `已删除 CK ${cookies.length - newData.length} 条`);
