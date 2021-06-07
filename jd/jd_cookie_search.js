@@ -85,7 +85,9 @@ cookiesRemark.forEach(item => {
   }
   $.write(JSON.stringify(ckFormat, null, `\t`), remark_key);
   console.log(`检测到${keyword.length - 1}个搜索条件：${keyword.join(',')}`);
-
+  console.log('=================');
+  console.log(ckData.join('&'));
+  console.log('=================');
   if (keyword && keyword[0]) {
     console.log('开始搜索中');
     const searchValue = ckFormat.filter(
