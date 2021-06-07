@@ -41,14 +41,26 @@ http-request ^https:\/\/me-api\.jd\.com\/user_new\/info\/GetJDUserInfoUnion tag=
 const APIKey = 'CookiesJD';
 const $ = new API(APIKey, true);
 const CacheKey = `#${APIKey}`;
+const CookieJD = '#CookieJD';
+const CookieJD2 = '#CookieJD2';
+
+const Nobyda = [];
+
+let cookie1 = $.read(CookieJD) || '';
+let cookie2 = $.read(CookieJD2) || '';
+
+function getUsername(ck) {
+  if (!ck) return '';
+  return decodeURIComponent(ck.match(/pt_pin=(.+?);/)[1]);
+}
+
 const mute = '#cks_get_mute';
 $.mute = $.read(mute);
 if ($request) GetCookie();
 $.done();
 
 function getCache() {
-  var cache = $.read(CacheKey) || '[]';
-  return JSON.parse(cache);
+  return JSON.parse($.read(CacheKey) || '[]');
 }
 
 function GetCookie() {
@@ -56,30 +68,32 @@ function GetCookie() {
   if (!Referer) return;
   try {
     if ($request.headers && $request.url.indexOf('GetJDUserInfoUnion') > -1) {
-      var CV = $request.headers['Cookie'] || $request.headers['cookie'];
+      const CV = $request.headers['Cookie'] || $request.headers['cookie'];
       if (CV.match(/(pt_key=.+?pt_pin=|pt_pin=.+?pt_key=)/)) {
-        var CookieValue = CV.match(/pt_key=.+?;/) + CV.match(/pt_pin=.+?;/);
-        var UserName = CookieValue.match(/pt_pin=(.+?);/)[1];
-        var DecodeName = decodeURIComponent(UserName);
-        var CookiesData = getCache();
-        var updateCookiesData = [...CookiesData];
-        var updateIndex;
-        var CookieName = '【账号】';
-        var updateCodkie = CookiesData.find((item, index) => {
-          var ck = item.cookie;
-          var Account = ck
-            ? ck.match(/pt_pin=.+?;/)
-              ? ck.match(/pt_pin=(.+?);/)[1]
-              : null
-            : null;
-          const verify = UserName === Account;
-          if (verify) {
-            updateIndex = index;
-          }
-          return verify;
+        const CookieValue = CV.match(/pt_key=.+?;/) + CV.match(/pt_pin=.+?;/);
+        const DecodeName = getUsername(CookieValue);
+        let updateIndex, CookieName, tipPrefix;
+
+        if (cookie1 && getUsername(cookie1) === DecodeName) {
+          $.write(CookieValue, CookieJD);
+          if ($.mute === 'true') return;
+          $.notify('用户名: ' + DecodeName, '', '更新 Cookie 成功 🎉');
+        }
+
+        if (cookie2 && getUsername(cookie2) === DecodeName) {
+          $.write(CookieValue, CookieJD2);
+          if ($.mute === 'true') return;
+          $.notify('用户名: ' + DecodeName, '', '更新 Cookie 成功 🎉');
+        }
+
+        const CookiesData = getCache();
+        const updateCookiesData = [...CookiesData];
+
+        CookiesData.forEach((item, index) => {
+          if (item.userName === DecodeName) updateIndex = index;
         });
-        var tipPrefix = '';
-        if (updateCodkie) {
+
+        if (updateIndex) {
           updateCookiesData[updateIndex].cookie = CookieValue;
           CookieName = '【账号' + (updateIndex + 1) + '】';
           tipPrefix = '更新京东';
@@ -93,7 +107,7 @@ function GetCookie() {
         }
         const cacheValue = JSON.stringify(updateCookiesData, null, '\t');
         $.write(cacheValue, CacheKey);
-        if (updateCodkie && $.mute === 'true') return;
+        if (updateIndex && $.mute === 'true') return;
         $.notify(
           '用户名: ' + DecodeName,
           '',
@@ -102,12 +116,11 @@ function GetCookie() {
       } else {
         $.notify('写入京东Cookie失败', '', '请查看脚本内说明, 登录网页获取 ‼️');
       }
-      return;
     } else {
       $.notify('写入京东Cookie失败', '', '请检查匹配URL或配置内脚本类型 ‼️');
     }
   } catch (eor) {
-    $.notify('写入京东Cookie失败', '', '已尝试清空历史Cookie, 请重试 ⚠️');
+    $.notify('写入京东Cookie失败', '', '请重试 ⚠️');
     console.log(
       `\n写入京东Cookie出现错误 ‼️\n${JSON.stringify(
         eor,
