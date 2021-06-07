@@ -12,19 +12,37 @@ try {
 try {
   if (condition) {
     condition = condition.split(',');
+    console.log('当前删除条件');
+    console.log(JSON.stringify(condition, null, `\t`));
+
+    const delData = [];
     const newData = cookies.filter(
-      (item, index) => condition.indexOf(`${index + 1}`) === -1 ||
-        condition.indexOf(item.userName) === -1);
+      (item, index) => {
+        const where = (
+          condition.indexOf(`${index + 1}`) === -1 ||
+          condition.indexOf(item.userName) === -1
+        );
+        if (!where) delData.push(item);
+        return where;
+      });
+
     if (cookies.length !== newData.length) {
+      console.log('=============删除信息=============');
+      console.log(JSON.stringify(delData, null, `\t`));
+      console.log('=================================');
       $.write(JSON.stringify(newData, null, `\t`), CacheKey);
-      $.notify('删除相关 ck 成功', '', `已删除 CK ${cookies.length - newData.length} 条`);
+      $.notify(
+        '删除成功', '',
+        `已删除 CK ${cookies.length - newData.length} 条\n${delData.map(
+          item => item.userName).join('，')}`,
+      );
     }
   }
   $.write('', delKey);
 } catch (e) {
   $.write('', delKey);
   console.log(e);
-  $.notify('清空条件异常，已经重置条件');
+  $.notify('删除失败', '', '删除条件异常，已经重置删除条件');
 }
 
 function ENV() {
