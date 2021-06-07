@@ -41,10 +41,9 @@ http-request ^https:\/\/me-api\.jd\.com\/user_new\/info\/GetJDUserInfoUnion tag=
 const APIKey = 'CookiesJD';
 const $ = new API(APIKey, true);
 const CacheKey = `#${APIKey}`;
+
 const CookieJD = '#CookieJD';
 const CookieJD2 = '#CookieJD2';
-
-const Nobyda = [];
 
 let cookie1 = $.read(CookieJD) || '';
 let cookie2 = $.read(CookieJD2) || '';
