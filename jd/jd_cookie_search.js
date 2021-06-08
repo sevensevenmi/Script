@@ -43,7 +43,7 @@ cookiesRemark.forEach(item => {
 (async () => {
   const ckFormat = [];
   const notLogin = [];
-  let ckIndex = 0;
+  let ckIndex = 1;
   for (const cookie of ckData) {
     let username = cookie.match(/pt_pin=(.+?);/)[1];
     username = decodeURIComponent(username);
