@@ -50,6 +50,7 @@ let cookie2 = $.read(CookieJD2) || '';
 
 function getUsername(ck) {
   if (!ck) return '';
+  console.log(ck);
   return decodeURIComponent(ck.match(/pt_pin=(.+?);/)[1]);
 }
 
