@@ -74,16 +74,20 @@ function GetCookie() {
         const DecodeName = getUsername(CookieValue);
         let updateIndex, CookieName, tipPrefix;
 
-        if (cookie1 && getUsername(cookie1) === DecodeName) {
-          $.write(CookieValue, CookieJD);
-          if ($.mute === 'true') return;
-          $.notify('用户名: ' + DecodeName, '', '更新 Cookie 成功 🎉');
+        if (cookie1) {
+          if (getUsername(cookie1) === DecodeName) {
+            $.write(CookieValue, CookieJD);
+            if ($.mute === 'true') return;
+            $.notify('用户名: ' + DecodeName, '', '更新 Cookie 成功 🎉');
+          }
         }
 
-        if (cookie2 && getUsername(cookie2) === DecodeName) {
-          $.write(CookieValue, CookieJD2);
-          if ($.mute === 'true') return;
-          $.notify('用户名: ' + DecodeName, '', '更新 Cookie 成功 🎉');
+        if (cookie2) {
+          if (getUsername(cookie2) === DecodeName) {
+            $.write(CookieValue, CookieJD2);
+            if ($.mute === 'true') return;
+            $.notify('用户名: ' + DecodeName, '', '更新 Cookie 成功 🎉');
+          }
         }
 
         const CookiesData = getCache();
@@ -120,7 +124,7 @@ function GetCookie() {
       $.notify('写入京东Cookie失败', '', '请检查匹配URL或配置内脚本类型 ‼️');
     }
   } catch (eor) {
-    $.notify('写入京东Cookie失败', '', '请重试 ⚠️');
+    // $.notify('写入京东Cookie失败', '', '请重试 ⚠️');
     console.log(
       `\n写入京东Cookie出现错误 ‼️\n${JSON.stringify(
         eor,
