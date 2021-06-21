@@ -2,7 +2,9 @@
 青龙 docker 每日自动同步 boxjs cookie
 40 * * * https://raw.githubusercontent.com/dompling/Script/master/jd/ql_cookie_sync.js
  */
+
 const $ = new API('ql', true);
+
 const title = '🐉 通知提示';
 const ipAddress = $.read('ip') || '';
 const baseURL = `http://${ipAddress}`;
@@ -23,13 +25,15 @@ const jd_cookie2 = $.read('#CookieJD2') || '';
 let remark = {};
 try {
   const _remark = JSON.parse(
-    JSON.parse($.read('#@jd_ck_remark.remark') || '{}').remark || '[]');
+    JSON.parse($.read('#jd_ck_remark') || '{}').remark || '[]');
+  console.log(_remark.length);
   _remark.forEach(item => {
     remark[item.username] = item;
   });
 } catch (e) {
   console.log(e);
 }
+console.log(JSON.stringify(remark));
 
 function getUsername(ck) {
   if (!ck) return '';
