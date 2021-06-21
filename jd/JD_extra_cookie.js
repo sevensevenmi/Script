@@ -72,7 +72,7 @@ function GetCookie() {
       if (CV.match(/(pt_key=.+?pt_pin=|pt_pin=.+?pt_key=)/)) {
         const CookieValue = CV.match(/pt_key=.+?;/) + CV.match(/pt_pin=.+?;/);
         const DecodeName = getUsername(CookieValue);
-        let updateIndex, CookieName, tipPrefix;
+        let updateIndex = null, CookieName, tipPrefix;
 
         if (cookie1) {
           if (getUsername(cookie1) === DecodeName) {
@@ -97,7 +97,7 @@ function GetCookie() {
           if (getUsername(item.cookie) === DecodeName) updateIndex = index;
         });
 
-        if (updateIndex) {
+        if (updateIndex !== null) {
           updateCookiesData[updateIndex].cookie = CookieValue;
           CookieName = '【账号' + (updateIndex + 1) + '】';
           tipPrefix = '更新京东';
@@ -111,7 +111,7 @@ function GetCookie() {
         }
         const cacheValue = JSON.stringify(updateCookiesData, null, '\t');
         $.write(cacheValue, CacheKey);
-        if (updateIndex && $.mute === 'true') return;
+        if (updateIndex !== null && $.mute === 'true') return;
         $.notify(
           '用户名: ' + DecodeName,
           '',
