@@ -18,7 +18,7 @@ task : 每日九点检查 ck 过期状态
 0 9 * * * https://raw.githubusercontent.com/dompling/Script/master/jd/jd_cookie_search.js
 
 */
-
+const noTitle = '登陆助手';
 const $ = new API('jd_ck_remark');
 $.msg = '';
 const APIKey = 'CookiesJD';
@@ -76,7 +76,7 @@ cookiesRemark.forEach(item => {
     ckFormat.push(item);
     ckIndex++;
   }
-  $.msg = '初始化备注结束，boxjs 中修改备注';
+  $.msg = '检索完成，所有账号状态正常！';
   console.log($.msg);
   if (notLogin.length) {
     console.log(`----------------未登录账号【${notLogin.length}】----------------`);
@@ -111,9 +111,9 @@ cookiesRemark.forEach(item => {
       $.msg = '未找到相关 ck';
     }
     console.log($.msg);
-    $.notify('京东 CK 查询', `关键字：${keyword}`, $.msg);
+    $.notify(noTitle, `关键字：${keyword}`, $.msg);
   } else {
-    $.notify('京东 CK 备注', ``, $.msg);
+    $.notify(noTitle, ``, $.msg);
   }
 })().catch(e => {
   console.log(e);
