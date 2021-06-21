@@ -78,7 +78,7 @@ function GetCookie() {
           if (getUsername(cookie1) === DecodeName) {
             $.write(CookieValue, CookieJD);
             if ($.mute === 'true') return;
-            $.notify('用户名: ' + DecodeName, '', '更新 Cookie 成功 🎉');
+            return $.notify('用户名: ' + DecodeName, '', '更新 Cookie 成功 🎉');
           }
         }
 
@@ -86,7 +86,7 @@ function GetCookie() {
           if (getUsername(cookie2) === DecodeName) {
             $.write(CookieValue, CookieJD2);
             if ($.mute === 'true') return;
-            $.notify('用户名: ' + DecodeName, '', '更新 Cookie 成功 🎉');
+            return $.notify('用户名: ' + DecodeName, '', '更新 Cookie 成功 🎉');
           }
         }
 
@@ -94,7 +94,7 @@ function GetCookie() {
         const updateCookiesData = [...CookiesData];
 
         CookiesData.forEach((item, index) => {
-          if (item.userName === DecodeName) updateIndex = index;
+          if (getUsername(item.cookie) === DecodeName) updateIndex = index;
         });
 
         if (updateIndex) {
