@@ -26,14 +26,13 @@ let remark = {};
 try {
   const _remark = JSON.parse(
     JSON.parse($.read('#jd_ck_remark') || '{}').remark || '[]');
-  console.log(_remark.length);
+
   _remark.forEach(item => {
     remark[item.username] = item;
   });
 } catch (e) {
   console.log(e);
 }
-console.log(JSON.stringify(remark));
 
 function getUsername(ck) {
   if (!ck) return '';
