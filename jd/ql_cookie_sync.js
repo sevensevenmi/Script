@@ -6,6 +6,8 @@ const $ = new API('ql', true);
 const title = '🐉 通知提示';
 const ipAddress = $.read('ip') || '';
 const baseURL = `http://${ipAddress}`;
+const urlStr = 'envs';
+
 let token = '';
 const headers = {
   'Content-Type': `application/json;charset=UTF-8`,
@@ -17,6 +19,23 @@ const account = {
 const jd_cookies = JSON.parse($.read('#CookiesJD') || '[]');
 const jd_cookie1 = $.read('#CookieJD') || '';
 const jd_cookie2 = $.read('#CookieJD2') || '';
+
+let remark = {};
+try {
+  const _remark = JSON.parse(
+    JSON.parse($.read('#@jd_ck_remark.remark') || '{}').remark || '[]');
+  _remark.forEach(item => {
+    remark[item.username] = item;
+  });
+} catch (e) {
+  console.log(e);
+}
+
+function getUsername(ck) {
+  if (!ck) return '';
+  return decodeURIComponent(ck.match(/pt_pin=(.+?);/)[1]);
+}
+
 $.log(`登陆：${ipAddress}`);
 $.log(`账号：${account.username}`);
 (async () => {
@@ -28,21 +47,25 @@ $.log(`账号：${account.username}`);
   const ids = cookiesRes.data.map(item => item._id);
   await delCookie(ids);
   $.log('清空 cookie');
-  const cookies = jd_cookies.map(item => item.cookie);
-  if (jd_cookie1) cookies.push(jd_cookie1);
-  if (jd_cookie2) cookies.push(jd_cookie2);
-  await addCookies(cookies);
-  const cookiesName = cookies.map(item => {
-    const userName = item.match(/pt_pin=(.+?);/)[1];
-    return decodeURIComponent(userName);
-  });
-  $.log(cookiesName);
-  const cookieText = cookiesName.join(`;`);
-  const newCookiesRes = await getCookies();
-  const disIds = newCookiesRes.data.filter(item => {
-    return item.nickname === '-';
-  }).map(item => item._id);
-  await disabledCookie(disIds);
+
+  if (jd_cookie1) jd_cookies.push(
+    {cookie: jd_cookie1, userName: getUsername(jd_cookie1)});
+  if (jd_cookie2) jd_cookies.push(
+    {cookie: jd_cookie2, userName: getUsername(jd_cookie2)});
+
+  for (const jd_cookie of jd_cookies) {
+    const username = getUsername(jd_cookie.cookie);
+    let remarks = '';
+    if (remark[username]) {
+      remarks = `${remark[username].nickname}：${remark[username].mobile}`;
+      if (remark[username].status !== '正常') remarks += '(已过期)';
+    } else {
+      remarks = username;
+    }
+    await addCookies({name: 'JD_COOKIE', value: jd_cookie.cookie, remarks});
+  }
+
+  const cookieText = jd_cookies.map(item => item.userName).join(`\n`);
   return $.notify(title, '', `已同步账号： ${cookieText}`);
 })().catch((e) => {
   $.log(JSON.stringify(e));
@@ -64,29 +87,18 @@ function login() {
 }
 
 function getCookies() {
-  const opt = {url: getURL('cookies'), headers};
+  const opt = {url: getURL(urlStr) + `?searchValue=JD_COOKIE`, headers};
   return $.http.get(opt).then((response) => JSON.parse(response.body));
 }
 
 function addCookies(cookies) {
-  const opt = {url: getURL('cookies'), headers, body: JSON.stringify(cookies)};
+  const opt = {url: getURL(urlStr), headers, body: JSON.stringify(cookies)};
   return $.http.post(opt).then((response) => JSON.parse(response.body));
 }
 
 function delCookie(ids) {
-  const opt = {url: getURL(`cookies`), headers, body: JSON.stringify(ids)};
+  const opt = {url: getURL(urlStr), headers, body: JSON.stringify(ids)};
   return $.http.delete(opt).then((response) => JSON.parse(response.body));
-}
-
-function disabledCookie(ids) {
-  const opt = {
-    url: getURL(`cookies/disable`),
-    headers,
-    body: JSON.stringify(ids),
-  };
-  $.http.put(opt).then((response) => {
-    return JSON.parse(response.body);
-  });
 }
 
 function ENV() {
