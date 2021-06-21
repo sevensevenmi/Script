@@ -1,9 +1,8 @@
 /*
-感谢github@dompling的PR
 
 Author: 2Ya
-
 Github: https://github.com/domping
+Version: v1.1.0
 
 ===================
 特别说明：
