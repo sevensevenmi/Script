@@ -44,6 +44,14 @@ const CacheKey = `#${APIKey}`;
 const CookieJD = '#CookieJD';
 const CookieJD2 = '#CookieJD2';
 
+const jdHelp = JSON.parse($.read('#jd_ck_remark') || '{}');
+let remark = [];
+try {
+  remark = JSON.parse(jdHelp.remark || '[]');
+} catch (e) {
+  console.log(e);
+}
+
 let cookie1 = $.read(CookieJD) || '';
 let cookie2 = $.read(CookieJD2) || '';
 
@@ -62,6 +70,19 @@ function getCache() {
   return JSON.parse($.read(CacheKey) || '[]');
 }
 
+function updateJDHelp(username) {
+  if (remark.length) {
+    const newRemark = remark.map(item => {
+      if (item.username === username) {
+        return {...item, status: '正常'};
+      }
+      return item;
+    });
+    jdHelp.remark = JSON.stringify(newRemark, null, `\t`);
+    $.write(JSON.stringify(jdHelp), '#jd_ck_remark');
+  }
+}
+
 function GetCookie() {
   const Referer = $request.headers['Referer'] || '';
   if (!Referer) return;
@@ -76,6 +97,7 @@ function GetCookie() {
         if (cookie1) {
           if (getUsername(cookie1) === DecodeName) {
             $.write(CookieValue, CookieJD);
+            updateJDHelp(DecodeName);
             if ($.mute === 'true') return;
             return $.notify('用户名: ' + DecodeName, '', '更新 Cookie 成功 🎉');
           }
@@ -84,6 +106,7 @@ function GetCookie() {
         if (cookie2) {
           if (getUsername(cookie2) === DecodeName) {
             $.write(CookieValue, CookieJD2);
+            updateJDHelp(DecodeName);
             if ($.mute === 'true') return;
             return $.notify('用户名: ' + DecodeName, '', '更新 Cookie 成功 🎉');
           }
@@ -110,6 +133,7 @@ function GetCookie() {
         }
         const cacheValue = JSON.stringify(updateCookiesData, null, '\t');
         $.write(cacheValue, CacheKey);
+        updateJDHelp(DecodeName);
         if (updateIndex !== null && $.mute === 'true') return;
         $.notify(
           '用户名: ' + DecodeName,
