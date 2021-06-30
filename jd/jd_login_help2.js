@@ -71,10 +71,12 @@ function initBoxJSData() {
   let cookiesRemark = JSON.parse($.read(remark_key) || '[]');
   const keyword = ($.read(searchKey) || '').split(',');
   cookiesRemark = cookiesRemark.filter((item, index) => {
-    return keyword[0] ? ((keyword.indexOf(`${index}`) > -1 ||
+    return keyword[0] ? (
+      keyword.indexOf(`${index}`) > -1 ||
       keyword.indexOf(item.username) > -1 ||
       keyword.indexOf(item.nickname) > -1 ||
-      keyword.indexOf(item.status) > -1)) : !!item.mobile;
+      keyword.indexOf(item.status) > -1
+    ) : true;
   });
 
   cookiesRemark = cookiesRemark.map(
