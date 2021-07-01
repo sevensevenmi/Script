@@ -351,7 +351,7 @@ const accounts = cookiesRemark.map(
   item => {
     const status = item.status === '正常';
     return (`
-<div class="cus-avatar" data-value="${item.mobile}">
+<div class="cus-avatar" data-value="${item.mobile}" data-name="${item.username}">
   <div class="avatar_img" style="background-image: url(${item.avatar ||
     '//img11.360buyimg.com/jdphoto/s120x120_jfs/t21160/90/706848746/2813/d1060df5/5b163ef9N4a3d7aa6.png'});color: #fff"></div>
   <div class="cususer_info">
@@ -510,8 +510,8 @@ function createScript() {
    function btnSubmit(){
     const sbBtn= document.getElementById('jd_account');
     if(!sbBtn) return alert("请选择需要登陆的账号");
-    const cuMobile = sbBtn.getAttribute('data-value');
-    const login_ck = jd_ck.find(item=>item.mobile===cuMobile);
+    const cuName = sbBtn.getAttribute('data-name');
+    const login_ck = jd_ck.find(item=>item.username===cuName);
     if(!login_ck) return alert("未找到相关账号");
     let [ pt_key , pt_pin ] = login_ck.cookie.split(";");
     pt_key = pt_key.split("=");
@@ -521,6 +521,8 @@ function createScript() {
     setCookie(pt_pin[0],pt_pin[1]);
     window.location.reload();
   }
+
+
   function setCookie(cname,cvalue){
       var ed = new Date();
       const mt = ed.getMonth()+1;
