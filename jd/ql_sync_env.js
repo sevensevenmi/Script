@@ -20,18 +20,56 @@ const account = {
 };
 
 const env = {key: $.read('name'), value: $.read('value')};
+const envValue = getBoxJSData(env.value);
+console.log(envValue);
+if (envValue) env.value = envValue;
+
 $.log(`登陆：${ipAddress}`);
 $.log(`账号：${account.username}`);
 
+function getBoxJSData(key) {
+  const datas = {};
+  const nulls = [null, undefined, 'null', 'undefined'];
+  if (/^@/.test(key)) {
+    const [, objkey, path] = /^@(.*?)\.(.*?)$/.exec(key);
+    try {
+      const val = JSON.parse($.read(`#${objkey}`));
+      datas[key] = nulls.includes(val) ? null : val[path];
+    } catch (e) {
+      return false;
+    }
+  } else {
+    let val = $.read(`#${key}`);
+    try {
+      val = JSON.parse(val);
+    } catch (e) {
+      console.log(e);
+    }
+    if (!val) return false;
+    datas[key] = nulls.includes(val) ? null : val;
+  }
+  return datas;
+}
+
 (async () => {
+  if (!env.key || !env.value) return $.notify(title, '请填写正确的参数');
   const loginRes = await login();
   if (loginRes.code === 400) return $.notify(title, '', loginRes.msg);
   token = loginRes.token;
   headers.Authorization = `Bearer ${token}`;
   const envs = await getEnvs(env.key);
-  console.log(envs);
-
-  return $.notify(title, '已同步账号', `${Object.keys(cookies).join(`\n`)}`);
+  const envIds = envs.data.map(item => item._id);
+  await delEnvs(envIds);
+  console.log('============清空相关变量============');
+  await addEnvs({
+    name: env.key,
+    value: typeof env.value === 'string' ?
+      env.value :
+      JSON.stringify(env.value),
+  });
+  console.log('============同步上传成功============');
+  $.write('', 'value');
+  return $.notify(title, '已同步环境变量', `${env.key}：${JSON.stringify(env.value)}`);
 })().catch((e) => {
   $.log(JSON.stringify(e));
 }).finally(() => {
