@@ -340,6 +340,20 @@
           "name": "密码",
           "val": "",
           "type": "text"
+        },
+        {
+          "id": "@ql.name",
+          "name": "环境变量名",
+          "val": "",
+          "type": "text",
+          "placeholder": "青龙的环境变量名称"
+        },
+        {
+          "id": "@ql.value",
+          "name": "环境变量值",
+          "val": "",
+          "type": "text",
+          "placeholder": "上传的环境变量值，可以为 BoxJS 的缓存 key"
         }
       ],
       "icons": [
