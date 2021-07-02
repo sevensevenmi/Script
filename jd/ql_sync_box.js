@@ -57,7 +57,7 @@ $.log(`账号：${account.username}`);
     }
   });
   $.write(JSON.stringify(saveCookie, null, `\t`), cookiesKey);
-  return $.notify(title, '已同步账号', `${userNames.join(`\n`)}`);
+  return $.notify(title, '已同步账号', `${Object.keys(cookies).join(`\n`)}`);
 })().catch((e) => {
   $.log(JSON.stringify(e));
 }).finally(() => {
