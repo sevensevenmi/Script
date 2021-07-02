@@ -348,7 +348,16 @@
       ],
       "author": "@dompling",
       "repo": "https://github.com/dompling/Script/blob/master/jd/ql_cookie_sync.js",
-      "script": "https://raw.githubusercontent.com/dompling/Script/master/jd/ql_cookie_sync.js",
+      "scripts": [
+        {
+          "name": "BoxJS同步到青龙",
+          "script": "https://raw.githubusercontent.com/dompling/Script/master/jd/ql_cookie_sync.js"
+        },
+        {
+          "name": "青龙同步到BoxJS",
+          "script": "https://raw.githubusercontent.com/dompling/Script/master/jd/ql_sync_box.js"
+        }
+      ],
       "descs_html": [
         "青龙 docker 的安装方式请移步 tg 频道",
         "青龙 docker 作者仓库：【<a href=\"https://github.com/whyour\">github</a>】",

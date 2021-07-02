@@ -1,159 +1,96 @@
 /*
-
-Author: 2Ya
-Github: https://github.com/domping
-Version: v1.1.0
-
-===================
-特别说明：
-1.获取多个京东cookie文件，不和野比大佬的文件冲突。暂不支持野比大佬脚本签到。
-2.若是要使用京东多合一签到，请使用修改版地址：https://raw.githubusercontent.com/dompling/Script/master/jd/JD_extra_sign.js
-===================
-===================
-使用方式：复制 https://home.m.jd.com/myJd/newhome.action 到浏览器打开 ，在个人中心自动获取 cookie，
-若弹出成功则正常使用。否则继续再此页面继续刷新一下试试
-===================
-
-===================
-[MITM]
-hostname = me-api.jd.com
-
-【Surge脚本配置】:
-===================
-[Script]
-获取京东Cookie = type=http-request,pattern=^https:\/\/me-api\.jd\.com\/user_new\/info\/GetJDUserInfoUnion,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/dompling/Script/master/jd/JD_extra_cookie.js,script-update-interval=0
-
-===================
-【Loon脚本配置】:
-===================
-[Script]
-http-request ^https:\/\/me-api\.jd\.com\/user_new\/info\/GetJDUserInfoUnion tag=获取京东Cookie, script-path=https://raw.githubusercontent.com/dompling/Script/master/jd/JD_extra_cookie.js
-
-===================
-【 QX  脚本配置 】 :
-===================
-
-[rewrite_local]
-^https:\/\/me-api\.jd\.com\/user_new\/info\/GetJDUserInfoUnion  url script-request-header https://raw.githubusercontent.com/dompling/Script/master/jd/JD_extra_cookie.js
-
+青龙 docker 每日自动同步 boxjs cookie
+40 * * * https://raw.githubusercontent.com/dompling/Script/master/jd/ql_cookie_sync.js
  */
-const APIKey = 'CookiesJD';
-const $ = new API(APIKey, true);
-const CacheKey = `#${APIKey}`;
 
-const CookieJD = '#CookieJD';
-const CookieJD2 = '#CookieJD2';
+const $ = new API('ql', true);
 
-const jdHelp = JSON.parse($.read('#jd_ck_remark') || '{}');
-let remark = [];
+const title = '🐉 通知提示';
+const ipAddress = $.read('ip') || '';
+const baseURL = `http://${ipAddress}`;
+const urlStr = 'envs';
+const cookiesKey = '#CookiesJD';
+let jd_cookies = [];
 try {
-  remark = JSON.parse(jdHelp.remark || '[]');
+  jd_cookies = JSON.parse($.read(cookiesKey) || '[]');
 } catch (e) {
   console.log(e);
 }
 
-let cookie1 = $.read(CookieJD) || '';
-let cookie2 = $.read(CookieJD2) || '';
-
 function getUsername(ck) {
   if (!ck) return '';
-  console.log(ck);
   return decodeURIComponent(ck.match(/pt_pin=(.+?);/)[1]);
 }
 
-const mute = '#cks_get_mute';
-$.mute = $.read(mute);
-if ($request) GetCookie();
-$.done();
-
-function getCache() {
-  return JSON.parse($.read(CacheKey) || '[]');
-}
-
-function updateJDHelp(username) {
-  if (remark.length) {
-    const newRemark = remark.map(item => {
-      if (item.username === username) {
-        return {...item, status: '正常'};
-      }
-      return item;
-    });
-    jdHelp.remark = JSON.stringify(newRemark, null, `\t`);
-    $.write(JSON.stringify(jdHelp), '#jd_ck_remark');
-  }
-}
-
-function GetCookie() {
-  const Referer = $request.headers['Referer'] || '';
-  if (!Referer) return;
-  try {
-    if ($request.headers && $request.url.indexOf('GetJDUserInfoUnion') > -1) {
-      const CV = $request.headers['Cookie'] || $request.headers['cookie'];
-      if (CV.match(/(pt_key=.+?pt_pin=|pt_pin=.+?pt_key=)/)) {
-        const CookieValue = CV.match(/pt_key=.+?;/) + CV.match(/pt_pin=.+?;/);
-        const DecodeName = getUsername(CookieValue);
-        let updateIndex = null, CookieName, tipPrefix;
-
-        if (cookie1) {
-          if (getUsername(cookie1) === DecodeName) {
-            $.write(CookieValue, CookieJD);
-            updateJDHelp(DecodeName);
-            if ($.mute === 'true') return;
-            return $.notify('用户名: ' + DecodeName, '', '更新 Cookie 成功 🎉');
-          }
-        }
-
-        if (cookie2) {
-          if (getUsername(cookie2) === DecodeName) {
-            $.write(CookieValue, CookieJD2);
-            updateJDHelp(DecodeName);
-            if ($.mute === 'true') return;
-            return $.notify('用户名: ' + DecodeName, '', '更新 Cookie 成功 🎉');
-          }
-        }
-
-        const CookiesData = getCache();
-        const updateCookiesData = [...CookiesData];
-
-        CookiesData.forEach((item, index) => {
-          if (getUsername(item.cookie) === DecodeName) updateIndex = index;
-        });
-
-        if (updateIndex !== null) {
-          updateCookiesData[updateIndex].cookie = CookieValue;
-          CookieName = '【账号' + (updateIndex + 1) + '】';
-          tipPrefix = '更新京东';
-        } else {
-          updateCookiesData.push({
-            userName: DecodeName,
-            cookie: CookieValue,
-          });
-          CookieName = '【账号' + updateCookiesData.length + '】';
-          tipPrefix = '首次写入京东';
-        }
-        const cacheValue = JSON.stringify(updateCookiesData, null, `\t`);
-        $.write(cacheValue, CacheKey);
-        updateJDHelp(DecodeName);
-        if (updateIndex !== null && $.mute === 'true') return;
-        $.notify(
-          '用户名: ' + DecodeName,
-          '',
-          tipPrefix + CookieName + 'Cookie成功 🎉',
-        );
-      } else {
-        $.notify('写入京东Cookie失败', '', '请查看脚本内说明, 登录网页获取 ‼️');
-      }
-    } else {
-      $.notify('写入京东Cookie失败', '', '请检查匹配URL或配置内脚本类型 ‼️');
+$.log(`登陆：${ipAddress}`);
+$.log(`账号：${account.username}`);
+(async () => {
+  const loginRes = await login();
+  if (loginRes.code === 400) return $.notify(title, '', loginRes.msg);
+  token = loginRes.token;
+  headers.Authorization = `Bearer ${token}`;
+  const cookiesRes = await getCookies();
+  const cookies = {};
+  cookiesRes.data.forEach(item => {
+    const key = getUsername(item.value);
+    cookies[key] = item.value;
+  });
+  const saveCookie = jd_cookies.map(item => {
+    if (cookies[item.userName]) return {
+      ...item,
+      cookie: cookies[item.userName],
+    };
+    return item;
+  });
+  const userNames = saveCookie.map(item => item.userName);
+  Object.keys(cookies).forEach(username => {
+    if (userNames.indexOf(username) === -1) {
+      saveCookie.push({userName: username, cookie: cookies[username]});
     }
-  } catch (eor) {
-    // $.notify('写入京东Cookie失败', '', '请重试 ⚠️');
-    console.log(
-      `\n写入京东Cookie出现错误 ‼️\n${JSON.stringify(
-        eor,
-      )}\n\n${eor}\n\n${JSON.stringify($request.headers)}\n`,
-    );
-  }
+  });
+  $.write(JSON.stringify(saveCookie, null, `\t`), cookiesKey);
+  return $.notify(title, '已同步账号', `${userNames.join(`\n`)}`);
+})().catch((e) => {
+  $.log(JSON.stringify(e));
+}).finally(() => {
+  $.done();
+});
+
+function getURL(api, key = 'api') {
+  return `${baseURL}/${key}/${api}`;
+}
+
+function login() {
+  const opt = {
+    headers,
+    url: getURL('login'),
+    body: JSON.stringify(account),
+  };
+  return $.http.post(opt).then((response) => JSON.parse(response.body));
+}
+
+function getCookies() {
+  const opt = {url: getURL(urlStr) + `?searchValue=JD_COOKIE`, headers};
+  return $.http.get(opt).then((response) => JSON.parse(response.body));
+}
+
+function addCookies(cookies) {
+  const opt = {url: getURL(urlStr), headers, body: JSON.stringify(cookies)};
+  return $.http.post(opt).then((response) => JSON.parse(response.body));
+}
+
+function delCookie(ids) {
+  const opt = {url: getURL(urlStr), headers, body: JSON.stringify(ids)};
+  return $.http.delete(opt).then((response) => JSON.parse(response.body));
+}
+
+function disabled(ids) {
+  const opt = {
+    url: getURL(`${urlStr}/disable`),
+    headers,
+    body: JSON.stringify(ids),
+  };
+  return $.http.put(opt).then((response) => JSON.parse(response.body));
 }
 
 function ENV() {
@@ -173,6 +110,7 @@ function HTTP(defaultOptions = {baseURL: ''}) {
   const URL_REGEX = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
 
   function send(method, options) {
+
     options = typeof options === 'string' ? {url: options} : options;
     const baseURL = defaultOptions.baseURL;
     if (baseURL && !URL_REGEX.test(options.url || '')) {
