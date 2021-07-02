@@ -10,6 +10,14 @@ const ipAddress = $.read('ip') || '';
 const baseURL = `http://${ipAddress}`;
 const urlStr = 'envs';
 const cookiesKey = '#CookiesJD';
+let token = '';
+const headers = {
+  'Content-Type': `application/json;charset=UTF-8`,
+};
+const account = {
+  password: $.read('password'),
+  username: $.read('username'),
+};
 let jd_cookies = [];
 try {
   jd_cookies = JSON.parse($.read(cookiesKey) || '[]');
