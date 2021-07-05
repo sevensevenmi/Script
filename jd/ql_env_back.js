@@ -27,7 +27,7 @@ $.log(`账号：${account.username}`);
   if (loginRes.code === 400) return $.notify(title, '', loginRes.msg);
   token = loginRes.token;
   headers.Authorization = `Bearer ${token}`;
-  const envs = await getEnvs(env.key);
+  const envs = await getEnvs(env);
   $.write(JSON.stringify(envs.data), 'env');
   return $.notify(title, '已备份环境变量', `备份个数：${envs.data.length} 个`);
 })().catch((e) => {

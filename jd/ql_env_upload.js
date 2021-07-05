@@ -34,7 +34,7 @@ $.log(`账号：${account.username}`);
   if (loginRes.code === 400) return $.notify(title, '', loginRes.msg);
   token = loginRes.token;
   headers.Authorization = `Bearer ${token}`;
-  const response = await getEnvs(env.key);
+  const response = await getEnvs(env);
   const delIds = response.data.map(item => item._id);
   await delEnvs(delIds);
   console.log(`=======================清空环境变量=======================`);
