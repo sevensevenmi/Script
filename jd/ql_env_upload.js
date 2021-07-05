@@ -39,7 +39,7 @@ $.log(`账号：${account.username}`);
   await delEnvs(delIds);
   console.log(`=======================清空环境变量=======================`);
   for (const env of envs) {
-    await addCookies({name: env.name, value: env.value, remarks: env.remarks});
+    await addEnvs({name: env.name, value: env.value, remarks: env.remarks});
   }
   console.log(`=======================恢复环境变量=======================`);
   return $.notify(title, '同步成功', `同步个数：${envs.data.length} 个`);
@@ -67,8 +67,8 @@ function getEnvs(keyword = '') {
   return $.http.get(opt).then((response) => JSON.parse(response.body));
 }
 
-function addEnvs(cookies) {
-  const opt = {url: getURL(urlStr), headers, body: JSON.stringify(cookies)};
+function addEnvs(_env) {
+  const opt = {url: getURL(urlStr), headers, body: JSON.stringify(_env)};
   return $.http.post(opt).then((response) => JSON.parse(response.body));
 }
 
