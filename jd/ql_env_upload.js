@@ -34,7 +34,7 @@ $.log(`账号：${account.username}`);
   if (loginRes.code === 400) return $.notify(title, '', loginRes.msg);
   token = loginRes.token;
   headers.Authorization = `Bearer ${token}`;
-  const response = await getEnvs(env);
+  const response = await getEnvs();
   const delIds = response.data.map(item => item._id);
   await delEnvs(delIds);
   console.log(`=======================清空环境变量=======================`);
@@ -62,7 +62,7 @@ function login() {
   return $.http.post(opt).then((response) => JSON.parse(response.body));
 }
 
-function getEnvs(keyword) {
+function getEnvs(keyword = '') {
   const opt = {url: getURL(urlStr) + `?searchValue=${keyword}`, headers};
   return $.http.get(opt).then((response) => JSON.parse(response.body));
 }
