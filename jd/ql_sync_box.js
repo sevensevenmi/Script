@@ -38,26 +38,23 @@ $.log(`账号：${account.username}`);
   token = loginRes.token;
   headers.Authorization = `Bearer ${token}`;
   const cookiesRes = await getCookies();
-  const cookies = {};
-  cookiesRes.data.forEach(item => {
+  const cookies = cookiesRes.data.map(item => {
     const key = getUsername(item.value);
-    cookies[key] = item.value;
+    return {userName: key, cookie: item.value};
   });
   const saveCookie = jd_cookies.map(item => {
-    if (cookies[item.userName]) return {
-      ...item,
-      cookie: cookies[item.userName],
-    };
+    const qlCk = cookies.find(ql => ql.userName === item.userName);
+    if (qlCk) return qlCk;
     return item;
   });
+
   const userNames = saveCookie.map(item => item.userName);
-  Object.keys(cookies).forEach(username => {
-    if (userNames.indexOf(username) === -1) {
-      saveCookie.push({userName: username, cookie: cookies[username]});
-    }
+  cookies.forEach(ql => {
+    if (userNames.indexOf(ql.userName) === -1) saveCookie.push(ql);
   });
   $.write(JSON.stringify(saveCookie, null, `\t`), cookiesKey);
-  return $.notify(title, '已同步账号', `${Object.keys(cookies).join(`\n`)}`);
+  return $.notify(
+    title, '已同步账号', `${cookies.map(item => item.userName).join(`\n`)}`);
 })().catch((e) => {
   $.log(JSON.stringify(e));
 }).finally(() => {
