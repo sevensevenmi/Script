@@ -116,6 +116,9 @@ function createStyle() {
     color: #fff;
     font-size: ${getRem(0.1)};
     margin-bottom: ${getRem(.1)};
+    border-top: 1px solid #e8e8e8;
+    border-bottom: 1px solid #e8e8e8;
+    border-left: 1px solid #e8e8e8;
   }
   .tool_bar img,.tool_bar span{
     border-radius: 50%;
@@ -125,7 +128,7 @@ function createStyle() {
     line-height: 27px;
     text-align: center;
     display: block;
-    font-size: ${getRem(.1)};
+    font-size: ${getRem(.25)};
   }
   #cus-mask{
     position: fixed;
@@ -204,7 +207,7 @@ function createStyle() {
   .cus-footer span{
     font-size: ${getRem(0.15)};
   }
-  #fill-input,#clear-ck{
+  .border-btn{
     border-left: 1px solid #eaeaea;
     border-top: 1px solid #eaeaea;
   }
@@ -218,7 +221,7 @@ function createStyle() {
   }
   #cus-tip{
     position: fixed;
-    z-index: 999;
+    z-index: 9999;
     background: rgba(0,0,0,.5);
     color: #fff;
     min-width: ${getRem(1)};
@@ -366,13 +369,13 @@ const accounts = cookiesRemark.map(
 // 生成 html 标签
 function createHTML() {
   const fastBtn = isLogin
-    ? `<span class="abtn" id="fill-input">快速填充</span>`
-    : '<span class="abtn" id="clear-ck">清空登陆</span>';
+    ? `<span class="abtn border-btn" id="fill-input">快速填充</span>`
+    : '<span class="abtn border-btn" id="clear-ck">清空登陆</span>';
   return `
 <div id="cus-mask" style="display: none">
   <div class="cus-mask_view">
     <div class="cus-content">
-      <div class="cus-view">京东账号列表</div>
+      <div class="cus-view" id="cus-username">京东账号列表</div>
       <div id="account_list">
           ${!accounts.length
     ? '<div class="not_content">未找到账号，请去 <span style="color: red" onclick="window.location.href=\'http://boxjs.net\'">【BoxJS】</span> 初始化</div>'
@@ -385,6 +388,9 @@ function createHTML() {
               取消
           </span>
           ${fastBtn}
+          <span class="abtn border-btn" id="copyCk">
+             复制CK
+          </span>
           <span class="abtn btn-ok" id="cus-mask-ok" >
               ${isLogin ? '直接登录' : '切换账号'}
           </span>
@@ -393,12 +399,10 @@ function createHTML() {
   </div>
 </div>
 <div id="cus-tip" style="display: none;"></div>
-
-<div class="tool_bars">
+<div class="tool_bars" id="tool-bars">
   <div id="boxjs" class="tool_bar">
    <img  src="https://raw.githubusercontent.com/chavyleung/scripts/master/BOXJS.png" />
   </div>
-  <div id="copyCk" class="tool_bar"><span>Ck</span></div>
 </div>
   `;
 }
@@ -410,7 +414,7 @@ function createScript() {
     var pk = getCookie("pt_key");
     var pp = getCookie("pt_pin");
     const head = document.getElementsByTagName("head")[0];
-    head.insertAdjacentHTML('beforeEnd', '<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />');
+    head.insertAdjacentHTML('beforeEnd', '<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" /><link rel="stylesheet" type="text/css" href="//at.alicdn.com/t/font_2100531_q4k4fuu5b18.css" charset="utf-8">');
     const jd_ck=${JSON.stringify(cookiesRemark)};
     const boxjs_btn = document.querySelector("#boxjs");
     const fill_btn = document.querySelector("#fill-input");
@@ -420,13 +424,65 @@ function createScript() {
     const clear_btn = document.querySelector("#clear-ck");
     const tip_view = document.querySelector("#cus-tip");
     const avatarView = document.querySelectorAll(".cus-avatar");
+    const usernameView = document.querySelector("#cus-username")
+    const toolView = document.querySelector("#tool-bars")
 
    const avatarItem = jd_ck.find(item=> item.username === pp);
    if(avatarItem && avatarItem.avatar){
      boxjs_btn.innerHTML = "<img src='"+ avatarItem.avatar +"' />";
    }
+   if(pk === "" || !pk)copyCk_btn.style.display="none";
+   if(pp){
+      usernameView.innerHTML= pp;
+      var preIndex = null;
+      var nextIndex = null;
+      jd_ck.forEach((item,index)=>{
+        if(item.username === pp){
+          preIndex = index !== 0 ? index - 1 : null;
+          nextIndex = index !== jd_ck.length - 1 ? index + 1 : null;
+        }
+      })
+      if(preIndex!==null){
+        toolView.insertAdjacentHTML('afterbegin','<div id="preCK" class="tool_bar"><span class="iconfont icon-shangjiantou" /></div>')
+      }
+      if(nextIndex!==null){
+        toolView.insertAdjacentHTML('beforeEnd','<div id="nextCK" class="tool_bar"><span class="iconfont icon-xiajiantou" /></div>')
+      }
+   };
+
+   var preCK = document.getElementById("preCK");
+   var nextCK = document.getElementById("nextCK");
+   if(preCK){
+     preCK.addEventListener('click',function() {
+      if(preIndex !== null) changeIndex(preIndex);
+     });
+   }
+
+   if(nextCK){
+     nextCK.addEventListener('click',function() {
+      if(nextIndex !== null) changeIndex(nextIndex);
+     });
+   }
+
+   function changeIndex(key){
+      avatarView.forEach((item,index)=>{
+        if(index === key){
+          item.className = "cus-avatar cus-active";
+          item.id = "jd_account";
+        } else {
+           item.className = "cus-avatar";
+           item.id = "";
+        }
+      });
+      btnSubmit();
+   }
 
     avatarView.forEach(item=>{
+     const username = item.getAttribute('data-name');
+      if(username === pp){
+        item.className = "cus-avatar cus-active";
+        item.id = "jd_account";
+      }
       item.onclick = function (){
         avatarView.forEach(item=>{
             item.className = "cus-avatar";
@@ -454,7 +510,7 @@ function createScript() {
       copyToClip();
     })
 
-    if(pk === "" || !pk)copyCk_btn.style.display="none";
+
 
     if(clear_btn){
       clear_btn.addEventListener('click',function(){
@@ -531,6 +587,7 @@ function createScript() {
       document.cookie = cname+"="+cvalue+"; "+expires+"; path=/; domain=.jingxi.com";
       document.cookie = cname+"="+cvalue+"; "+expires+"; path=/; domain=.jd.com";
   }
+
   function getQueryVariable(variable){
      var query = window.location.search.substring(1);
      var vars = query.split("&");
