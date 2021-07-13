@@ -372,7 +372,7 @@ function createHTML() {
     ? `<span class="abtn border-btn" id="fill-input">快速填充</span>`
     : '<span class="abtn border-btn" id="clear-ck">清空登陆</span>';
   return `
-<div id="cus-mask" style="display: none">
+<div id="cus-mask" style="visibility:hidden">
   <div class="cus-mask_view">
     <div class="cus-content">
       <div class="cus-view" id="cus-username">京东账号列表</div>
@@ -424,8 +424,9 @@ function createScript() {
     const clear_btn = document.querySelector("#clear-ck");
     const tip_view = document.querySelector("#cus-tip");
     const avatarView = document.querySelectorAll(".cus-avatar");
-    const usernameView = document.querySelector("#cus-username")
-    const toolView = document.querySelector("#tool-bars")
+    const usernameView = document.querySelector("#cus-username");
+    const toolView = document.querySelector("#tool-bars");
+    const account_list = document.querySelector("#account_list");
 
    const avatarItem = jd_ck.find(item=> item.username === pp);
    if(avatarItem && avatarItem.avatar){
@@ -436,8 +437,10 @@ function createScript() {
       usernameView.innerHTML= pp;
       var preIndex = null;
       var nextIndex = null;
+      var current = null
       jd_ck.forEach((item,index)=>{
         if(item.username === pp){
+          current = index;
           preIndex = index !== 0 ? index - 1 : null;
           nextIndex = index !== jd_ck.length - 1 ? index + 1 : null;
         }
@@ -448,7 +451,15 @@ function createScript() {
       if(nextIndex!==null){
         toolView.insertAdjacentHTML('beforeEnd','<div id="nextCK" class="tool_bar"><span class="iconfont icon-xiajiantou" /></div>')
       }
+
+      if(current) animateScroll(current);
    };
+
+
+   function animateScroll(key) {
+      account_list.scrollTo({top: 52 * key});
+      console.log(account_list.scrollTop);
+   }
 
    var preCK = document.getElementById("preCK");
    var nextCK = document.getElementById("nextCK");
@@ -539,7 +550,7 @@ function createScript() {
 
     function maskVisible(visible){
       const cusmsk = document.getElementById("cus-mask");
-      cusmsk.style.display = visible? "block" : "none";
+      cusmsk.style.visibility = visible? "visible" : "hidden";
     }
 
     function fillInput(){
