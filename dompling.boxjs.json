@@ -320,7 +320,8 @@
         "@ql.ip",
         "@ql.username",
         "@ql.password",
-        "@ql.env"
+        "@ql.env",
+        "@ql.mute"
       ],
       "settings": [
         {
@@ -402,7 +403,8 @@
       "id": "JD_Cookies_remark",
       "name": "登陆助手",
       "keys": [
-        "@jd_ck_remark.remark"
+        "@jd_ck_remark.remark",
+        "@jd_ck_remark.mute"
       ],
       "descs_html": [
         "请勿随意在输入框修改内容，建议通过脚本去获取cookie，若要修改，请按照JSON 格式修改（<a href=\"https://www.bejson.com/json/format\">可使用此JSON校验</a> ，或点击右上角按钮🔘进行校验(如有弹窗提示则为异常JSON)）。",
