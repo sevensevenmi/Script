@@ -324,6 +324,13 @@
       ],
       "settings": [
         {
+          "id": "mute",
+          "name": "静音",
+          "val": false,
+          "type": "boolean",
+          "desc": "同步时，不会执行通知提示"
+        },
+        {
           "id": "@ql.ip",
           "name": "青龙登陆的域名或IP:端口号",
           "val": "",
@@ -364,13 +371,6 @@
       "author": "@dompling",
       "repo": "https://github.com/dompling/Script/blob/master/jd/ql_cookie_sync.js",
       "scripts": [
-        {
-          "id": "mute",
-          "name": "静音",
-          "val": false,
-          "type": "boolean",
-          "desc": "同步时，不会执行通知提示"
-        },
         {
           "name": "BoxJS同步到青龙(京东 Ck)",
           "script": "https://raw.githubusercontent.com/dompling/Script/master/jd/ql_cookie_sync.js"
