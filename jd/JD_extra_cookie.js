@@ -38,9 +38,9 @@ http-request ^https:\/\/me-api\.jd\.com\/user_new\/info\/GetJDUserInfoUnion tag=
 
  */
 const APIKey = 'CookiesJD';
-const $ = new API(APIKey, true);
+const $ = new API('ql', true);
 const CacheKey = `#${APIKey}`;
-
+const $ql = new QL_API();
 const CookieJD = '#CookieJD';
 const CookieJD2 = '#CookieJD2';
 
@@ -93,6 +93,20 @@ function GetCookie() {
         const CookieValue = CV.match(/pt_key=.+?;/) + CV.match(/pt_pin=.+?;/);
         const DecodeName = getUsername(CookieValue);
         let updateIndex = null, CookieName, tipPrefix;
+
+        if ($ql.ql) {
+          $ql.login().then(async () => {
+            const qlCk = (await $ql.getEnvs('JD_COOKIE')).data;
+            const current = qlCk.find(
+              item => getUsername(item.value) === DecodeName);
+            if (current) {
+              current.value = CookieValue;
+              await $ql.editEnvs(current);
+            } else {
+              await $ql.addEnvs({name: 'JD_COOKIE', value: CookieValue});
+            }
+          });
+        }
 
         if (cookie1) {
           if (getUsername(cookie1) === DecodeName) {
@@ -154,6 +168,93 @@ function GetCookie() {
       )}\n\n${eor}\n\n${JSON.stringify($request.headers)}\n`,
     );
   }
+}
+
+function QL_API() {
+  return new (class QL {
+    constructor() {
+      this.$ = new API('ql', true);
+      const ipAddress = this.$.read('ip') || '';
+      this.baseURL = `http://${ipAddress}`;
+      this.account = {
+        password: this.$.read('password'),
+        username: this.$.read('username'),
+      };
+      if (!this.account.password ||
+        !this.account.username) return this.ql = false;
+    }
+
+    ql = true;
+    headers = {
+      'Content-Type': `application/json;charset=UTF-8`,
+      Authorization: '',
+    };
+
+    getURL(key = '') {
+      return `${this.baseURL}/envs/api${key}`;
+    }
+
+    login() {
+      const opt = {
+        headers: this.headers,
+        body: JSON.stringify(this.account),
+        url: this.getURL('login'),
+      };
+      return this.$.http.post(opt).then((response) => {
+        const loginRes = JSON.parse(response.body);
+        if (loginRes.code === 400) return this.$.notify(
+          title, '', loginRes.msg);
+        this.headers.Authorization = `Bearer ${loginRes.token}`;
+      });
+    }
+
+    getEnvs(keyword = '') {
+      const opt = {
+        url: getURL() + `?searchValue=${keyword}`,
+        headers: this.headers,
+      };
+      return this.$.http.get(opt).then((response) => JSON.parse(response.body));
+    }
+
+    addEnvs(cookies) {
+      const opt = {
+        url: getURL(),
+        headers: this.headers,
+        body: JSON.stringify(cookies),
+      };
+      return this.$.http.post(opt).then(
+        (response) => JSON.parse(response.body));
+    }
+
+    editEnvs(ids) {
+      const opt = {
+        url: getURL(),
+        headers: this.headers,
+        body: JSON.stringify(ids),
+      };
+      return this.$.http.delete(opt).then(
+        (response) => JSON.parse(response.body));
+    }
+
+    delEnvs(ids) {
+      const opt = {
+        url: getURL(),
+        headers: this.headers,
+        body: JSON.stringify(ids),
+      };
+      return this.$.http.delete(opt).then(
+        (response) => JSON.parse(response.body));
+    }
+
+    disabled(ids) {
+      const opt = {
+        url: getURL(`/disable`),
+        headers: this.headers,
+        body: JSON.stringify(ids),
+      };
+      return this.$.http.put(opt).then((response) => JSON.parse(response.body));
+    }
+  });
 }
 
 function ENV() {
