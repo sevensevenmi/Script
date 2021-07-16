@@ -325,7 +325,7 @@
       ],
       "settings": [
         {
-          "id": "mute",
+          "id": "@ql.mute",
           "name": "静音",
           "val": false,
           "type": "boolean",
@@ -415,7 +415,7 @@
       ],
       "settings": [
         {
-          "id": "mute",
+          "id": "@jd_ck_remark.mute",
           "name": "静音",
           "val": false,
           "type": "boolean",
