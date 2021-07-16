@@ -105,6 +105,8 @@ function GetCookie() {
             } else {
               await $ql.addEnvs({name: 'JD_COOKIE', value: CookieValue});
             }
+            if ($.mute !== 'true') return $.notify(
+              '用户名: ' + DecodeName, '', '同步更新青龙成功🎉');
           });
         }
 
