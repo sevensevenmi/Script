@@ -78,7 +78,9 @@ $.log(`账号：${account.username}`);
   }
 
   const cookieText = jd_cookies.map(item => item.userName).join(`\n`);
-  return $.notify(title, '', `已同步账号： ${cookieText}`);
+  if ($.read('mute') !== 'true') {
+    return $.notify(title, '', `已同步账号： ${cookieText}`);
+  }
 })().catch((e) => {
   $.log(JSON.stringify(e));
 }).finally(() => {

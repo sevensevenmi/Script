@@ -68,7 +68,10 @@ function getBoxJSData(key) {
       JSON.stringify(env.value),
   });
   console.log('============同步上传成功============');
-  return $.notify(title, '已同步环境变量', `${env.key}：${JSON.stringify(env.value)}`);
+  if ($.read('mute') !== 'true') {
+    return $.notify(
+      title, '已同步环境变量', `${env.key}：${JSON.stringify(env.value)}`);
+  }
 })().catch((e) => {
   $.log(JSON.stringify(e));
 }).finally(() => {

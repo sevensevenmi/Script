@@ -53,8 +53,10 @@ $.log(`账号：${account.username}`);
     if (userNames.indexOf(ql.userName) === -1) saveCookie.push(ql);
   });
   $.write(JSON.stringify(saveCookie, null, `\t`), cookiesKey);
-  return $.notify(
-    title, '已同步账号', `${cookies.map(item => item.userName).join(`\n`)}`);
+  if ($.read('mute') !== 'true') {
+    return $.notify(
+      title, '已同步账号', `${cookies.map(item => item.userName).join(`\n`)}`);
+  }
 })().catch((e) => {
   $.log(JSON.stringify(e));
 }).finally(() => {

@@ -42,7 +42,9 @@ $.log(`账号：${account.username}`);
     await addEnvs({name: env.name, value: env.value, remarks: env.remarks});
   }
   console.log(`=======================恢复环境变量=======================`);
-  return $.notify(title, '同步成功', `同步个数：${envs.data.length} 个`);
+  if ($.read('mute') !== 'true') {
+    return $.notify(title, '同步成功', `同步个数：${envs.data.length} 个`);
+  }
 })().catch((e) => {
   $.log(JSON.stringify(e));
 }).finally(() => {

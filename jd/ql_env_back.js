@@ -29,7 +29,9 @@ $.log(`账号：${account.username}`);
   headers.Authorization = `Bearer ${token}`;
   const envs = await getEnvs();
   $.write(JSON.stringify(envs.data), 'env');
-  return $.notify(title, '已备份环境变量', `备份个数：${envs.data.length} 个`);
+  if ($.read('mute') !== 'true') {
+    return $.notify(title, '已备份环境变量', `备份个数：${envs.data.length} 个`);
+  }
 })().catch((e) => {
   $.log(JSON.stringify(e));
 }).finally(() => {
