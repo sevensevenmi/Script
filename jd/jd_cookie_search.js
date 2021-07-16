@@ -111,9 +111,13 @@ cookiesRemark.forEach(item => {
       $.msg = '未找到相关 ck';
     }
     console.log($.msg);
-    $.notify(noTitle, `关键字：${keyword}`, $.msg);
+    if ($.read('mute') !== 'true') {
+      $.notify(noTitle, `关键字：${keyword}`, $.msg);
+    }
   } else {
-    $.notify(noTitle, ``, $.msg);
+    if ($.read('mute') !== 'true') {
+      $.notify(noTitle, ``, $.msg);
+    }
   }
 })().catch(e => {
   console.log(e);
