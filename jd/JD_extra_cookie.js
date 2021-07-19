@@ -63,8 +63,11 @@ function getUsername(ck) {
 
 const mute = '#cks_get_mute';
 $.mute = $.read(mute);
-if ($request) GetCookie();
-$.done();
+(async () => {
+  if ($request) await GetCookie();
+})().finally(() => {
+  $.done();
+});
 
 function getCache() {
   return JSON.parse($.read(CacheKey) || '[]');
@@ -83,7 +86,7 @@ function updateJDHelp(username) {
   }
 }
 
-function GetCookie() {
+async function GetCookie() {
   const Referer = $request.headers['Referer'] || '';
   if (!Referer) return;
   try {
@@ -95,19 +98,18 @@ function GetCookie() {
         let updateIndex = null, CookieName, tipPrefix;
 
         if ($ql.ql) {
-          $ql.login().then(async () => {
-            const qlCk = (await $ql.getEnvs('JD_COOKIE')).data;
-            const current = qlCk.find(
-              item => getUsername(item.value) === DecodeName);
-            if (current) {
-              current.value = CookieValue;
-              await $ql.editEnvs(current);
-            } else {
-              await $ql.addEnvs({name: 'JD_COOKIE', value: CookieValue});
-            }
-            if ($.mute !== 'true') return $.notify(
-              '用户名: ' + DecodeName, '', '同步更新青龙成功🎉');
-          });
+          await $ql.login();
+          const qlCk = (await $ql.getEnvs('JD_COOKIE')).data;
+          const current = qlCk.find(
+            item => getUsername(item.value) === DecodeName);
+          if (current) {
+            current.value = CookieValue;
+            await $ql.editEnvs(current);
+          } else {
+            await $ql.addEnvs({name: 'JD_COOKIE', value: CookieValue});
+          }
+          if ($.mute !== 'true') return $.notify(
+            '用户名: ' + DecodeName, '', '同步更新青龙成功🎉');
         }
 
         if (cookie1) {
