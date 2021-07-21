@@ -99,17 +99,19 @@ async function GetCookie() {
 
         if ($ql.ql) {
           await $ql.login();
-          const qlCk = (await $ql.getEnvs('JD_COOKIE')).data;
-          const current = qlCk.find(
-            item => getUsername(item.value) === DecodeName);
-          if (current) {
-            current.value = CookieValue;
-            await $ql.editEnvs(current);
-          } else {
-            await $ql.addEnvs({name: 'JD_COOKIE', value: CookieValue});
+          if ($ql.headers.Authorization) {
+            const qlCk = (await $ql.getEnvs('JD_COOKIE')).data;
+            const current = qlCk.find(
+              item => getUsername(item.value) === DecodeName);
+            if (current) {
+              current.value = CookieValue;
+              await $ql.editEnvs(current);
+            } else {
+              await $ql.addEnvs({name: 'JD_COOKIE', value: CookieValue});
+            }
+            if ($.mute !== 'true') $.notify(
+              '用户名: ' + DecodeName, '', '同步更新青龙成功🎉');
           }
-          if ($.mute !== 'true') return $.notify(
-            '用户名: ' + DecodeName, '', '同步更新青龙成功🎉');
         }
 
         if (cookie1) {
@@ -195,26 +197,27 @@ function QL_API() {
     };
 
     getURL(key = '') {
-      return `${this.baseURL}/envs/api${key}`;
+      return `${this.baseURL}/api/envs${key}`;
     }
 
     login() {
       const opt = {
         headers: this.headers,
         body: JSON.stringify(this.account),
-        url: this.getURL('login'),
+        url: `${this.baseURL}/api/login`,
       };
       return this.$.http.post(opt).then((response) => {
         const loginRes = JSON.parse(response.body);
-        if (loginRes.code === 400) return this.$.notify(
-          title, '', loginRes.msg);
+        if (loginRes.code !== 200) {
+          return this.$.notify(title, '', loginRes.msg);
+        }
         this.headers.Authorization = `Bearer ${loginRes.token}`;
       });
     }
 
     getEnvs(keyword = '') {
       const opt = {
-        url: getURL() + `?searchValue=${keyword}`,
+        url: this.getURL() + `?searchValue=${keyword}`,
         headers: this.headers,
       };
       return this.$.http.get(opt).then((response) => JSON.parse(response.body));
@@ -222,7 +225,7 @@ function QL_API() {
 
     addEnvs(cookies) {
       const opt = {
-        url: getURL(),
+        url: this.getURL(),
         headers: this.headers,
         body: JSON.stringify(cookies),
       };
@@ -232,17 +235,17 @@ function QL_API() {
 
     editEnvs(ids) {
       const opt = {
-        url: getURL(),
+        url: this.getURL(),
         headers: this.headers,
         body: JSON.stringify(ids),
       };
-      return this.$.http.delete(opt).then(
+      return this.$.http.put(opt).then(
         (response) => JSON.parse(response.body));
     }
 
     delEnvs(ids) {
       const opt = {
-        url: getURL(),
+        url: this.getURL(),
         headers: this.headers,
         body: JSON.stringify(ids),
       };
@@ -252,7 +255,7 @@ function QL_API() {
 
     disabled(ids) {
       const opt = {
-        url: getURL(`/disable`),
+        url: this.getURL(`/disable`),
         headers: this.headers,
         body: JSON.stringify(ids),
       };
