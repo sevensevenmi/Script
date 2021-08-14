@@ -67,9 +67,9 @@ cookiesRemark.forEach(item => {
       index: ckIndex,
       username,
       nickname,
+      remark:nickname,
       mobile: '',
       avatar,
-      qywxUserId: "",
       ...ckRemarkFormat[username],
       status,
     };
