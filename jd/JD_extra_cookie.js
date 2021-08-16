@@ -75,9 +75,9 @@ function getCache() {
 
 function updateJDHelp(username) {
   if (remark.length) {
-    const newRemark = remark.map(item => {
+    const newRemark = remark.map((item) => {
       if (item.username === username) {
-        return {...item, status: '正常'};
+        return { ...item, status: '正常' };
       }
       return item;
     });
@@ -95,42 +95,9 @@ async function GetCookie() {
       if (CV.match(/(pt_key=.+?pt_pin=|pt_pin=.+?pt_key=)/)) {
         const CookieValue = CV.match(/pt_key=.+?;/) + CV.match(/pt_pin=.+?;/);
         const DecodeName = getUsername(CookieValue);
-        let updateIndex = null, CookieName, tipPrefix;
-
-        if ($ql.ql) {
-          await $ql.login();
-          if ($ql.headers.Authorization) {
-            const qlCk = (await $ql.getEnvs('JD_COOKIE')).data;
-            const current = qlCk.find(
-              item => getUsername(item.value) === DecodeName);
-            if (current) {
-              current.value = CookieValue;
-              await $ql.editEnvs(current);
-            } else {
-              await $ql.addEnvs({name: 'JD_COOKIE', value: CookieValue});
-            }
-            if ($.mute !== 'true') $.notify(
-              '用户名: ' + DecodeName, '', '同步更新青龙成功🎉');
-          }
-        }
-
-        if (cookie1) {
-          if (getUsername(cookie1) === DecodeName) {
-            $.write(CookieValue, CookieJD);
-            updateJDHelp(DecodeName);
-            if ($.mute === 'true') return;
-            return $.notify('用户名: ' + DecodeName, '', '更新 Cookie 成功 🎉');
-          }
-        }
-
-        if (cookie2) {
-          if (getUsername(cookie2) === DecodeName) {
-            $.write(CookieValue, CookieJD2);
-            updateJDHelp(DecodeName);
-            if ($.mute === 'true') return;
-            return $.notify('用户名: ' + DecodeName, '', '更新 Cookie 成功 🎉');
-          }
-        }
+        let updateIndex = null,
+          CookieName,
+          tipPrefix;
 
         const CookiesData = getCache();
         const updateCookiesData = [...CookiesData];
@@ -154,6 +121,23 @@ async function GetCookie() {
         const cacheValue = JSON.stringify(updateCookiesData, null, `\t`);
         $.write(cacheValue, CacheKey);
         updateJDHelp(DecodeName);
+        if ($ql.ql) {
+          await $ql.login();
+          if ($ql.headers.Authorization) {
+            const qlCk = (await $ql.getEnvs('JD_COOKIE')).data;
+            const current = qlCk.find(
+              (item) => getUsername(item.value) === DecodeName,
+            );
+            if (current) {
+              current.value = CookieValue;
+              await $ql.editEnvs(current);
+            } else {
+              await $ql.addEnvs({ name: 'JD_COOKIE', value: CookieValue });
+            }
+            if ($.mute !== 'true')
+              $.notify('用户名: ' + DecodeName, '', '同步更新青龙成功🎉');
+          }
+        }
         if (updateIndex !== null && $.mute === 'true') return;
         $.notify(
           '用户名: ' + DecodeName,
@@ -186,8 +170,8 @@ function QL_API() {
         password: this.$.read('password'),
         username: this.$.read('username'),
       };
-      if (!this.account.password ||
-        !this.account.username) return this.ql = false;
+      if (!this.account.password || !this.account.username)
+        return (this.ql = false);
     }
 
     ql = true;
@@ -229,8 +213,9 @@ function QL_API() {
         headers: this.headers,
         body: JSON.stringify(cookies),
       };
-      return this.$.http.post(opt).then(
-        (response) => JSON.parse(response.body));
+      return this.$.http
+        .post(opt)
+        .then((response) => JSON.parse(response.body));
     }
 
     editEnvs(ids) {
@@ -239,8 +224,7 @@ function QL_API() {
         headers: this.headers,
         body: JSON.stringify(ids),
       };
-      return this.$.http.put(opt).then(
-        (response) => JSON.parse(response.body));
+      return this.$.http.put(opt).then((response) => JSON.parse(response.body));
     }
 
     delEnvs(ids) {
@@ -249,8 +233,9 @@ function QL_API() {
         headers: this.headers,
         body: JSON.stringify(ids),
       };
-      return this.$.http.delete(opt).then(
-        (response) => JSON.parse(response.body));
+      return this.$.http
+        .delete(opt)
+        .then((response) => JSON.parse(response.body));
     }
 
     disabled(ids) {
@@ -261,7 +246,7 @@ function QL_API() {
       };
       return this.$.http.put(opt).then((response) => JSON.parse(response.body));
     }
-  });
+  })();
 }
 
 function ENV() {
@@ -272,21 +257,22 @@ function ENV() {
   const isNode = typeof require == 'function' && !isJSBox;
   const isRequest = typeof $request !== 'undefined';
   const isScriptable = typeof importModule !== 'undefined';
-  return {isQX, isLoon, isSurge, isNode, isJSBox, isRequest, isScriptable};
+  return { isQX, isLoon, isSurge, isNode, isJSBox, isRequest, isScriptable };
 }
 
-function HTTP(defaultOptions = {baseURL: ''}) {
-  const {isQX, isLoon, isSurge, isScriptable, isNode} = ENV();
+function HTTP(defaultOptions = { baseURL: '' }) {
+  const { isQX, isLoon, isSurge, isScriptable, isNode } = ENV();
   const methods = ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', 'PATCH'];
-  const URL_REGEX = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
+  const URL_REGEX =
+    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
 
   function send(method, options) {
-    options = typeof options === 'string' ? {url: options} : options;
+    options = typeof options === 'string' ? { url: options } : options;
     const baseURL = defaultOptions.baseURL;
     if (baseURL && !URL_REGEX.test(options.url || '')) {
       options.url = baseURL ? baseURL + options.url : options.url;
     }
-    options = {...defaultOptions, ...options};
+    options = { ...defaultOptions, ...options };
     const timeout = options.timeout;
     const events = {
       ...{
@@ -301,7 +287,7 @@ function HTTP(defaultOptions = {baseURL: ''}) {
 
     let worker;
     if (isQX) {
-      worker = $task.fetch({method, ...options});
+      worker = $task.fetch({ method, ...options });
     } else if (isLoon || isSurge || isNode) {
       worker = new Promise((resolve, reject) => {
         const request = isNode ? require('request') : $httpClient;
@@ -321,33 +307,37 @@ function HTTP(defaultOptions = {baseURL: ''}) {
       request.headers = options.headers;
       request.body = options.body;
       worker = new Promise((resolve, reject) => {
-        request.loadString().then((body) => {
-          resolve({
-            statusCode: request.response.statusCode,
-            headers: request.response.headers,
-            body,
-          });
-        }).catch((err) => reject(err));
+        request
+          .loadString()
+          .then((body) => {
+            resolve({
+              statusCode: request.response.statusCode,
+              headers: request.response.headers,
+              body,
+            });
+          })
+          .catch((err) => reject(err));
       });
     }
 
     let timeoutid;
     const timer = timeout
       ? new Promise((_, reject) => {
-        timeoutid = setTimeout(() => {
-          events.onTimeout();
-          return reject(
-            `${method} URL: ${options.url} exceeds the timeout ${timeout} ms`,
-          );
-        }, timeout);
-      })
+          timeoutid = setTimeout(() => {
+            events.onTimeout();
+            return reject(
+              `${method} URL: ${options.url} exceeds the timeout ${timeout} ms`,
+            );
+          }, timeout);
+        })
       : null;
 
-    return (timer
+    return (
+      timer
         ? Promise.race([timer, worker]).then((res) => {
-          clearTimeout(timeoutid);
-          return res;
-        })
+            clearTimeout(timeoutid);
+            return res;
+          })
         : worker
     ).then((resp) => events.onResponse(resp));
   }
@@ -361,7 +351,7 @@ function HTTP(defaultOptions = {baseURL: ''}) {
 }
 
 function API(name = 'untitled', debug = false) {
-  const {isQX, isLoon, isSurge, isNode, isJSBox, isScriptable} = ENV();
+  const { isQX, isLoon, isSurge, isNode, isJSBox, isScriptable } = ENV();
   return new (class {
     constructor(name, debug) {
       this.name = name;
@@ -384,12 +374,12 @@ function API(name = 'untitled', debug = false) {
       this.initCache();
 
       const delay = (t, v) =>
-        new Promise(function(resolve) {
+        new Promise(function (resolve) {
           setTimeout(resolve.bind(null, v), t);
         });
 
-      Promise.prototype.delay = function(t) {
-        return this.then(function(v) {
+      Promise.prototype.delay = function (t) {
+        return this.then(function (v) {
           return delay(t, v);
         });
       };
@@ -410,7 +400,7 @@ function API(name = 'untitled', debug = false) {
           this.node.fs.writeFileSync(
             fpath,
             JSON.stringify({}),
-            {flag: 'wx'},
+            { flag: 'wx' },
             (err) => console.log(err),
           );
         }
@@ -422,7 +412,7 @@ function API(name = 'untitled', debug = false) {
           this.node.fs.writeFileSync(
             fpath,
             JSON.stringify({}),
-            {flag: 'wx'},
+            { flag: 'wx' },
             (err) => console.log(err),
           );
           this.cache = {};
@@ -443,13 +433,13 @@ function API(name = 'untitled', debug = false) {
         this.node.fs.writeFileSync(
           `${this.name}.json`,
           data,
-          {flag: 'w'},
+          { flag: 'w' },
           (err) => console.log(err),
         );
         this.node.fs.writeFileSync(
           'root.json',
           JSON.stringify(this.root),
-          {flag: 'w'},
+          { flag: 'w' },
           (err) => console.log(err),
         );
       }
