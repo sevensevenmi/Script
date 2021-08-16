@@ -8,9 +8,7 @@
     {
       "id": "10010Ck",
       "name": "中国联通 Cookie",
-      "keys": [
-        "@YaYa_10010.cookie"
-      ],
+      "keys": ["@YaYa_10010.cookie"],
       "author": "@dompling",
       "icons": [
         "https://raw.githubusercontent.com/Orz-3/mini/master/Alpha/10010.png",
@@ -18,12 +16,46 @@
       ]
     },
     {
+      "id": "xmSports",
+      "name": "多账号运动",
+      "keys": ["@xmSports.token", "@xmSports.minStep", "@xmSports.maxStep"],
+      "author": "@dompling",
+      "settings": [
+        {
+          "id": "@xmSports.token",
+          "name": "token 列表",
+          "val": null,
+          "type": "textarea",
+          "rows": 4,
+          "placeholder": "请使用抓包，若自己知道可以自行填写",
+          "desc": "必填"
+        },
+        {
+          "id": "@xmSports.minStep",
+          "name": "最小步数",
+          "val": null,
+          "type": "text",
+          "placeholder": "最小步数",
+          "desc": "必填"
+        },
+        {
+          "id": "@xmSports.maxStep",
+          "name": "最大步数",
+          "val": "23000",
+          "type": "text",
+          "placeholder": "最大步数",
+          "desc": "必填"
+        }
+      ],
+      "icons": [
+        "https://raw.githubusercontent.com/58xinian/icon/master/xmyd.png",
+        "https://raw.githubusercontent.com/58xinian/icon/master/xmyd.png"
+      ]
+    },
+    {
       "id": "gistBackup",
       "name": "gist 备份",
-      "keys": [
-        "@gist.token",
-        "@gist.username"
-      ],
+      "keys": ["@gist.token", "@gist.username"],
       "author": "@dompling",
       "icons": [
         "https://raw.githubusercontent.com/58xinian/icon/master/Github.png",
@@ -65,13 +97,9 @@
     {
       "id": "ZXTrains",
       "name": "智行火车行程提醒",
-      "keys": [
-        "@ZXTrains.travels"
-      ],
+      "keys": ["@ZXTrains.travels"],
       "author": "@dompling",
-      "descs_html": [
-        "使用智行火车票 app，在未出行中获取该列表。"
-      ],
+      "descs_html": ["使用智行火车票 app，在未出行中获取该列表。"],
       "repo": "https://github.com/dompling/Script/blob/master/ZXTrians/ZXTrians.js",
       "script": "https://raw.githubusercontent.com/dompling/Script/master/ZXTrians/ZXTrains.js",
       "icons": [
@@ -264,9 +292,7 @@
     {
       "id": "xiaomiyp",
       "name": "小米有品",
-      "keys": [
-        "@xiaomiyp.cookie"
-      ],
+      "keys": ["@xiaomiyp.cookie"],
       "icons": [
         "https://raw.githubusercontent.com/Orz-3/task/master/xiaomiyp.png",
         "https://raw.githubusercontent.com/Orz-3/task/master/xiaomiyp.png"
@@ -278,10 +304,7 @@
     {
       "id": "bilibili",
       "name": "哔哩哔哩关注中心/番剧监控",
-      "keys": [
-        "@bilibili.cookie",
-        "@BiliBiliMonitor.subscriptions"
-      ],
+      "keys": ["@bilibili.cookie", "@BiliBiliMonitor.subscriptions"],
       "icons": [
         "https://raw.githubusercontent.com/Orz-3/task/master/bilibili.png",
         "https://raw.githubusercontent.com/Orz-3/task/master/bilibili.png"
@@ -293,9 +316,7 @@
     {
       "id": "DJT",
       "name": "毒汤日历",
-      "keys": [
-        "@DJT.unid"
-      ],
+      "keys": ["@DJT.unid"],
       "icons": [],
       "author": "@dompling",
       "repo": "https://github.com/dompling/Script/blob/master/DJT/djt.cookie.js"
@@ -303,9 +324,7 @@
     {
       "id": "scriptable",
       "name": "桌面组件",
-      "keys": [
-        "scriptable"
-      ],
+      "keys": ["scriptable"],
       "icons": [
         "https://scriptablejs.gitee.io/store/favicon.ico",
         "https://scriptablejs.gitee.io/store/favicon.ico"
@@ -316,13 +335,7 @@
     {
       "id": "ql",
       "name": "青龙 Cookie 同步",
-      "keys": [
-        "@ql.ip",
-        "@ql.username",
-        "@ql.password",
-        "@ql.env",
-        "@ql.mute"
-      ],
+      "keys": ["@ql.ip", "@ql.username", "@ql.password", "@ql.env", "@ql.mute"],
       "settings": [
         {
           "id": "@ql.mute",
@@ -402,10 +415,7 @@
     {
       "id": "JD_Cookies_remark",
       "name": "登陆助手",
-      "keys": [
-        "@jd_ck_remark.remark",
-        "@jd_ck_remark.mute"
-      ],
+      "keys": ["@jd_ck_remark.remark", "@jd_ck_remark.mute"],
       "descs_html": [
         "请勿随意在输入框修改内容，建议通过脚本去获取cookie，若要修改，请按照JSON 格式修改（<a href=\"https://www.bejson.com/json/format\">可使用此JSON校验</a> ，或点击右上角按钮🔘进行校验(如有弹窗提示则为异常JSON)）。",
         "脚本地址【<a href=\"https://jdsharedresourcescdn.azureedge.net/jdresource/JD_extra_cookie.js\">京东多 CK获取</a>】,并按照此脚本注释进行配置",
@@ -451,10 +461,7 @@
     {
       "id": "JD_Cookies",
       "name": "多 Ck 管理",
-      "keys": [
-        "CookiesJD",
-        "cks_get_mute"
-      ],
+      "keys": ["CookiesJD", "cks_get_mute"],
       "descs_html": [
         "请勿随意在输入框修改内容，建议通过脚本去获取cookie，若要修改，请按照JSON 格式修改（<a href=\"https://www.bejson.com/json/format\">可使用此JSON校验</a> ，或点击右上角按钮🔘进行校验(如有弹窗提示则为异常JSON)）。",
         "示例：[{\"userName\":\"jd_xxx\",\"cookie\":\"pt_key=AAJ;pt_pin=jd_xxx;\"},{\"userName\":\"jd_66\",\"cookie\":\"pt_key=AAJ;pt_pin=jd_66;\"}]",
@@ -508,10 +515,7 @@
     {
       "id": "JD_jr_Cookies",
       "name": "金融领豆",
-      "keys": [
-        "@jd_jr.cookies",
-        "@jd_jr.bodys"
-      ],
+      "keys": ["@jd_jr.cookies", "@jd_jr.bodys"],
       "descs_html": [
         "请勿随意在输入框修改内容，只能通过脚本去获取cookie，若要修改，请按照JSON 格式修改（<a href=\"https://www.bejson.com/json/format\">可使用此JSON校验</a> ，或点击右上角按钮🔘进行校验(如有弹窗提示则为异常JSON)）。",
         "仅能修改phoneNumber内容",
@@ -539,10 +543,7 @@
     {
       "id": "oneSay",
       "name": "每天一句",
-      "keys": [
-        "@oneSay.mediaImg",
-        "@oneSay.username"
-      ],
+      "keys": ["@oneSay.mediaImg", "@oneSay.username"],
       "icons": [
         "https://raw.githubusercontent.com/Orz-3/mini/master/calendar.png",
         "https://raw.githubusercontent.com/Orz-3/task/master/calendar.png"
