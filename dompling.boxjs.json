@@ -33,7 +33,7 @@
         {
           "id": "@xmSports.minStep",
           "name": "最小步数",
-          "val": null,
+          "val": "20000",
           "type": "text",
           "placeholder": "最小步数",
           "desc": "必填"
