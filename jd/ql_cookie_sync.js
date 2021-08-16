@@ -61,10 +61,11 @@ $.log(`账号：${account.username}`);
     const username = getUsername(jd_cookie.cookie);
     let remarks = '';
     if (remark[username]) {
-      remarks = `${remark[username].nickname}：${remark[username].mobile}`;
+      remarks = remark[username].nickname;
       if (remark[username].status !== '正常') remarks += '(已过期)';
+      remarks += `&${remark[username].remark}`;
       if (remark[username].qywxUserId) {
-        remarks += `${remark[username].qywxUserId}`;
+        remarks += `&${remark[username].qywxUserId}`;
       }
     } else {
       remarks = username;

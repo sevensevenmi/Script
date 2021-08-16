@@ -58,6 +58,7 @@ cookiesRemark.forEach(item => {
     if (response.retcode === '0') {
       avatar = response.data.userInfo.baseInfo.headImageUrl;
       nickname = response.data.userInfo.baseInfo.nickname;
+      console.log("帐号昵称：" + nickname)
     }
 
     console.log(`检查结束：账号【${ckIndex}】 ${username}【${status}】`);
@@ -67,11 +68,12 @@ cookiesRemark.forEach(item => {
       index: ckIndex,
       username,
       nickname,
+      qywxUserId:"",
       mobile: '',
       avatar,
-      qywxUserId: "",
       ...ckRemarkFormat[username],
       status,
+      remark: nickname,
     };
     if (status === '未登录') notLogin.push(item);
     ckFormat.push(item);
