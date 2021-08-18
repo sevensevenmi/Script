@@ -56,7 +56,7 @@ $.log(`账号：${account.username}`);
     jd_cookies.push({ cookie: jd_cookie1, userName: getUsername(jd_cookie1) });
   if (jd_cookie2)
     jd_cookies.push({ cookie: jd_cookie2, userName: getUsername(jd_cookie2) });
-
+  const addData = [];
   for (const jd_cookie of jd_cookies) {
     const username = getUsername(jd_cookie.cookie);
     let remarks = '';
@@ -70,8 +70,9 @@ $.log(`账号：${account.username}`);
     } else {
       remarks = username;
     }
-    await addCookies({ name: 'JD_COOKIE', value: jd_cookie.cookie, remarks });
+    addData.push({ name: 'JD_COOKIE', value: jd_cookie.cookie, remarks });
   }
+  await addCookies(addData);
 
   const _cookiesRes = await getCookies();
   const _ids = _cookiesRes.data
