@@ -45,7 +45,7 @@ $.log(`账号：${account.username}`);
 (async () => {
   const loginRes = await login();
   if (loginRes.code === 400) return $.notify(title, '', loginRes.msg);
-  token = loginRes.token;
+  token = loginRes.data.token;
   headers.Authorization = `Bearer ${token}`;
   const cookiesRes = await getCookies();
   const ids = cookiesRes.data.map((item) => item._id);

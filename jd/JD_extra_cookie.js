@@ -132,7 +132,7 @@ async function GetCookie() {
               current.value = CookieValue;
               await $ql.editEnvs(current);
             } else {
-              await $ql.addEnvs({ name: 'JD_COOKIE', value: CookieValue });
+              await $ql.addEnvs([{ name: 'JD_COOKIE', value: CookieValue }]);
             }
             if ($.mute !== 'true')
               $.notify('用户名: ' + DecodeName, '', '同步更新青龙成功🎉');
