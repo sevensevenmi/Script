@@ -52,9 +52,6 @@ try {
   console.log(e);
 }
 
-let cookie1 = $.read(CookieJD) || '';
-let cookie2 = $.read(CookieJD2) || '';
-
 function getUsername(ck) {
   if (!ck) return '';
   console.log(ck);
@@ -121,23 +118,8 @@ async function GetCookie() {
         const cacheValue = JSON.stringify(updateCookiesData, null, `\t`);
         $.write(cacheValue, CacheKey);
         updateJDHelp(DecodeName);
-        if ($ql.ql) {
-          await $ql.login();
-          if ($ql.headers.Authorization) {
-            const qlCk = (await $ql.getEnvs('JD_COOKIE')).data;
-            const current = qlCk.find(
-              (item) => getUsername(item.value) === DecodeName,
-            );
-            if (current) {
-              current.value = CookieValue;
-              await $ql.editEnvs(current);
-            } else {
-              await $ql.addEnvs([{ name: 'JD_COOKIE', value: CookieValue }]);
-            }
-            if ($.mute !== 'true')
-              $.notify('用户名: ' + DecodeName, '', '同步更新青龙成功🎉');
-          }
-        }
+        if ($ql.ql) await $ql.asyncCoookie(CookieValue);
+
         if (updateIndex !== null && $.mute === 'true') return;
         $.notify(
           '用户名: ' + DecodeName,
@@ -245,6 +227,30 @@ function QL_API() {
         body: JSON.stringify(ids),
       };
       return this.$.http.put(opt).then((response) => JSON.parse(response.body));
+    }
+
+    getUsername(ck) {
+      if (!ck) return '';
+      console.log(ck);
+      return decodeURIComponent(ck.match(/pt_pin=(.+?);/)[1]);
+    }
+
+    async asyncCoookie(cookieValue) {
+      if (this.headers.Authorization) {
+        const qlCk = (await this.getEnvs('JD_COOKIE')).data;
+        const DecodeName = this.getUsername(cookieValue);
+        const current = qlCk.find(
+          (item) => getUsername(item.value) === DecodeName,
+        );
+        if (current) {
+          current.value = cookieValue;
+          await this.editEnvs(current);
+        } else {
+          await this.addEnvs([{ name: 'JD_COOKIE', value: cookieValue }]);
+        }
+        if ($.mute !== 'true')
+          $.notify('用户名: ' + DecodeName, '', '同步更新青龙成功🎉');
+      }
     }
   })();
 }
