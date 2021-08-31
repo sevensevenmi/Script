@@ -41,8 +41,6 @@ const APIKey = 'CookiesJD';
 const $ = new API('ql', true);
 const CacheKey = `#${APIKey}`;
 const $ql = new QL_API();
-const CookieJD = '#CookieJD';
-const CookieJD2 = '#CookieJD2';
 
 const jdHelp = JSON.parse($.read('#jd_ck_remark') || '{}');
 let remark = [];
