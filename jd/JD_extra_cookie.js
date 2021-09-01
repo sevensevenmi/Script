@@ -143,11 +143,13 @@ async function GetCookie() {
           updateIndex = index;
         }
       });
+      console.log(updateIndex ? '未找到相关账号' : '已匹配到账号');
       if (updateIndex === false) return;
-      if (CookiesData[updateIndex].wskey === wskey) return;
-      CookiesData[updateIndex].wskey = wskey;
       if ($ql.ql) await $ql.asyncWSCoookie(code);
 
+      if (CookiesData[updateIndex].wskey === wskey) return;
+
+      CookiesData[updateIndex].wskey = wskey;
       const cacheValue = JSON.stringify(CookiesData, null, `\t`);
       $.write(cacheValue, CacheKey);
       if ($.mute === 'true')
@@ -253,6 +255,7 @@ function QL_API() {
 
     async asyncWSCoookie(cookieValue) {
       await this.login();
+      console.log(`青龙登陆同步`);
       if (this.headers.Authorization) {
         const qlCk = (await this.getEnvs('JD_WSCK')).data;
         const DecodeName = this.getUsername(cookieValue);
@@ -266,12 +269,13 @@ function QL_API() {
           await this.addEnvs([{ name: 'JD_WSCK', value: cookieValue }]);
         }
         if ($.mute !== 'true')
-          $.notify('用户名: ' + DecodeName, '', '同步wskey更新青龙成功🎉');
+          this.$.notify('用户名: ' + DecodeName, '', '同步wskey更新青龙成功🎉');
       }
     }
 
     async asyncCoookie(cookieValue) {
       await this.login();
+      console.log(`青龙登陆同步`);
       if (this.headers.Authorization) {
         const qlCk = (await this.getEnvs('JD_COOKIE')).data;
         const DecodeName = this.getUsername(cookieValue);
@@ -285,7 +289,7 @@ function QL_API() {
           await this.addEnvs([{ name: 'JD_COOKIE', value: cookieValue }]);
         }
         if ($.mute !== 'true')
-          $.notify('用户名: ' + DecodeName, '', '同步更新青龙成功🎉');
+          this.$.notify('用户名: ' + DecodeName, '', '同步更新青龙成功🎉');
       }
     }
   })();
