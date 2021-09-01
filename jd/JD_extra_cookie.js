@@ -60,9 +60,13 @@ const mute = '#cks_get_mute';
 $.mute = $.read(mute);
 (async () => {
   if ($request) await GetCookie();
-})().finally(() => {
-  $.done();
-});
+})()
+  .catch((e) => {
+    console.log(e);
+  })
+  .finally(() => {
+    $.done();
+  });
 
 function getCache() {
   return JSON.parse($.read(CacheKey) || '[]');
@@ -82,83 +86,72 @@ function updateJDHelp(username) {
 }
 
 async function GetCookie() {
-  const Referer = $request.headers['Referer'] || '';
-  if (!Referer) return;
-  try {
-    if ($request.headers && $request.url.indexOf('GetJDUserInfoUnion') > -1) {
-      const CV = $request.headers['Cookie'] || $request.headers['cookie'];
-      if (CV.match(/(pt_key=.+?pt_pin=|pt_pin=.+?pt_key=)/)) {
-        const CookieValue = CV.match(/pt_key=.+?;/) + CV.match(/pt_pin=.+?;/);
-        const DecodeName = getUsername(CookieValue);
-        let updateIndex = null,
-          CookieName,
-          tipPrefix;
+  const CV = $request.headers['Cookie'] || $request.headers['cookie'];
+  if ($request.headers && $request.url.indexOf('GetJDUserInfoUnion') > -1) {
+    if (CV.match(/(pt_key=.+?pt_pin=|pt_pin=.+?pt_key=)/)) {
+      const CookieValue = CV.match(/pt_key=.+?;/) + CV.match(/pt_pin=.+?;/);
+      const DecodeName = getUsername(CookieValue);
+      let updateIndex = null,
+        CookieName,
+        tipPrefix;
 
-        const CookiesData = getCache();
-        const updateCookiesData = [...CookiesData];
+      const CookiesData = getCache();
+      const updateCookiesData = [...CookiesData];
 
-        CookiesData.forEach((item, index) => {
-          if (getUsername(item.cookie) === DecodeName) updateIndex = index;
-        });
+      CookiesData.forEach((item, index) => {
+        if (getUsername(item.cookie) === DecodeName) updateIndex = index;
+      });
 
-        if (updateIndex !== null) {
-          updateCookiesData[updateIndex].cookie = CookieValue;
-          CookieName = '【账号' + (updateIndex + 1) + '】';
-          tipPrefix = '更新京东';
-        } else {
-          updateCookiesData.push({
-            userName: DecodeName,
-            cookie: CookieValue,
-          });
-          CookieName = '【账号' + updateCookiesData.length + '】';
-          tipPrefix = '首次写入京东';
-        }
-        const cacheValue = JSON.stringify(updateCookiesData, null, `\t`);
-        $.write(cacheValue, CacheKey);
-        updateJDHelp(DecodeName);
-        if ($ql.ql) await $ql.asyncCoookie(CookieValue);
-
-        if (updateIndex !== null && $.mute === 'true') return;
-        $.notify(
-          '用户名: ' + DecodeName,
-          '',
-          tipPrefix + CookieName + 'Cookie成功 🎉',
-        );
+      if (updateIndex !== null) {
+        updateCookiesData[updateIndex].cookie = CookieValue;
+        CookieName = '【账号' + (updateIndex + 1) + '】';
+        tipPrefix = '更新京东';
       } else {
-        $.notify('写入京东Cookie失败', '', '请查看脚本内说明, 登录网页获取 ‼️');
-      }
-    } else if (
-      $request.headers &&
-      $request.url.indexOf('readCustomSurfaceList')
-    ) {
-      if (CV.match(/wskey=.+?;/) && CV.match(/pt_pin=.+?;/)) {
-        const code = CV.match(/wskey=.+?;/) + CV.match(/pt_pin=.+?;/);
-        const wskey = CV.match(/wskey=.+?;/);
-        const username = getUsername(code);
-
-        const CookiesData = getCache();
-        let updateIndex = false;
-        CookiesData.forEach((item, index) => {
-          if (item.userName === username) {
-            updateIndex = index;
-          }
+        updateCookiesData.push({
+          userName: DecodeName,
+          cookie: CookieValue,
         });
-        if (updateIndex === false) return;
-        CookiesData[updateIndex].wskey = wskey;
-        const cacheValue = JSON.stringify(updateCookiesData, null, `\t`);
-        $.write(cacheValue, CacheKey);
-        $.notify('用户名: ' + username, '', '更新wskey成功 🎉');
+        CookieName = '【账号' + updateCookiesData.length + '】';
+        tipPrefix = '首次写入京东';
       }
+      const cacheValue = JSON.stringify(updateCookiesData, null, `\t`);
+      $.write(cacheValue, CacheKey);
+      updateJDHelp(DecodeName);
+      if ($ql.ql) await $ql.asyncCoookie(CookieValue);
+
+      if (updateIndex !== null && $.mute === 'true') return;
+      $.notify(
+        '用户名: ' + DecodeName,
+        '',
+        tipPrefix + CookieName + 'Cookie成功 🎉',
+      );
     } else {
-      $.notify('写入京东Cookie失败', '', '请检查匹配URL或配置内脚本类型 ‼️');
+      $.notify('写入京东Cookie失败', '', '请查看脚本内说明, 登录网页获取 ‼️');
     }
-  } catch (eor) {
-    // $.notify('写入京东Cookie失败', '', '请重试 ⚠️');
-    console.log(
-      `\n写入京东Cookie出现错误 ‼️\n${JSON.stringify(
-        eor,
-      )}\n\n${eor}\n\n${JSON.stringify($request.headers)}\n`,
-    );
+  } else if (
+    $request.headers &&
+    $request.url.indexOf('readCustomSurfaceList') > -1
+  ) {
+    if (CV.match(/wskey=.+?;/) && CV.match(/pin=.+?;/)) {
+      const code = CV.match(/wskey=.+?;/)[0] + `pt_${CV.match(/pin=.+?;/)[0]}`;
+      const wskey = CV.match(/wskey=.+?;/)[0];
+      const username = getUsername(code);
+      const CookiesData = getCache();
+      let updateIndex = false;
+      CookiesData.forEach((item, index) => {
+        if (item.userName === username) {
+          updateIndex = index;
+        }
+      });
+      if (updateIndex === false) return;
+      CookiesData[updateIndex].wskey = wskey;
+      const cacheValue = JSON.stringify(CookiesData, null, `\t`);
+      $.write(cacheValue, CacheKey);
+      if ($.mute === 'true')
+        return $.notify('用户名: ' + username, '', '更新wskey成功 🎉');
+    }
+  } else {
+    $.notify('写入京东Cookie失败', '', '请检查匹配URL或配置内脚本类型 ‼️');
   }
 }
 
