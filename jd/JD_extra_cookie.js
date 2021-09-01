@@ -138,12 +138,14 @@ async function GetCookie() {
       const username = getUsername(code);
       const CookiesData = getCache();
       let updateIndex = false;
+      console.log(username);
       CookiesData.forEach((item, index) => {
         if (item.userName === username) {
           updateIndex = index;
         }
       });
-      console.log(updateIndex ? '未找到相关账号' : '已匹配到账号');
+
+      console.log(updateIndex === false ? '未找到相关账号' : '已匹配到账号');
       if (updateIndex === false) return;
       if ($ql.ql) await $ql.asyncWSCoookie(code);
 
@@ -257,12 +259,14 @@ function QL_API() {
       await this.login();
       console.log(`青龙wskey登陆同步`);
       if (this.headers.Authorization) {
-        const qlCk = (await this.getEnvs('JD_WSCK')).data;
+        let qlCk = await this.getEnvs('JD_WSCK');
+        if (!qlCk.data) return;
+        qlCk = qlCk.data;
         const DecodeName = this.getUsername(cookieValue);
         const current = qlCk.find(
           (item) => getUsername(item.value) === DecodeName,
         );
-        if (current.value === cookieValue) {
+        if (current && current.value === cookieValue) {
           console.log('该账号无需更新');
           return;
         }
@@ -281,12 +285,14 @@ function QL_API() {
       await this.login();
       console.log(`青龙cookie登陆同步`);
       if (this.headers.Authorization) {
-        const qlCk = (await this.getEnvs('JD_COOKIE')).data;
+        let qlCk = await this.getEnvs('JD_COOKIE');
+        if (!qlCk.data) return;
+        qlCk = qlCk.data;
         const DecodeName = this.getUsername(cookieValue);
         const current = qlCk.find(
           (item) => getUsername(item.value) === DecodeName,
         );
-        if (current.value === cookieValue) {
+        if (current && current.value === cookieValue) {
           console.log('该账号无需更新');
           return;
         }
