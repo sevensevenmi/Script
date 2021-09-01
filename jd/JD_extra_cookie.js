@@ -129,7 +129,7 @@ async function GetCookie() {
       }
     } else if (
       $request.headers &&
-      $request.url.indexOf('functionId=newUserInfo')
+      $request.url.indexOf('readCustomSurfaceList')
     ) {
       if (CV.match(/wskey=.+?;/) && CV.match(/pt_pin=.+?;/)) {
         const code = CV.match(/wskey=.+?;/) + CV.match(/pt_pin=.+?;/);
