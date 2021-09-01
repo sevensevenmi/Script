@@ -255,7 +255,7 @@ function QL_API() {
 
     async asyncWSCoookie(cookieValue) {
       await this.login();
-      console.log(`青龙登陆同步`);
+      console.log(`青龙wskey登陆同步`);
       if (this.headers.Authorization) {
         const qlCk = (await this.getEnvs('JD_WSCK')).data;
         const DecodeName = this.getUsername(cookieValue);
@@ -279,7 +279,7 @@ function QL_API() {
 
     async asyncCoookie(cookieValue) {
       await this.login();
-      console.log(`青龙登陆同步`);
+      console.log(`青龙cookie登陆同步`);
       if (this.headers.Authorization) {
         const qlCk = (await this.getEnvs('JD_COOKIE')).data;
         const DecodeName = this.getUsername(cookieValue);
