@@ -19,8 +19,6 @@ const account = {
   username: $.read('username'),
 };
 const jd_cookies = JSON.parse($.read('#CookiesJD') || '[]');
-const jd_cookie1 = $.read('#CookieJD') || '';
-const jd_cookie2 = $.read('#CookieJD2') || '';
 
 let remark = {};
 try {
@@ -52,11 +50,8 @@ $.log(`账号：${account.username}`);
   await delCookie(ids);
   $.log('清空 cookie');
 
-  if (jd_cookie1)
-    jd_cookies.push({ cookie: jd_cookie1, userName: getUsername(jd_cookie1) });
-  if (jd_cookie2)
-    jd_cookies.push({ cookie: jd_cookie2, userName: getUsername(jd_cookie2) });
   const addData = [];
+  const wsCookie = [];
   for (const jd_cookie of jd_cookies) {
     const username = getUsername(jd_cookie.cookie);
     let remarks = '';
@@ -71,8 +66,16 @@ $.log(`账号：${account.username}`);
       remarks = username;
     }
     addData.push({ name: 'JD_COOKIE', value: jd_cookie.cookie, remarks });
+    if (jd_cookie.wskey) {
+      wsCookie.push({
+        name: 'JD_WSCK',
+        remarks: remarks,
+        value: `wskey=${jd_cookie.wskey};pt_pin=${username};`,
+      });
+    }
   }
-  await addCookies(addData);
+  if (addData.length) await addCookies(addData);
+  if (wsCookie.length) await addCookies(wsCookie);
 
   const _cookiesRes = await getCookies();
   const _ids = _cookiesRes.data
