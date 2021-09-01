@@ -144,7 +144,10 @@ async function GetCookie() {
         }
       });
       if (updateIndex === false) return;
+      if (CookiesData[updateIndex].wskey === wskey) return;
       CookiesData[updateIndex].wskey = wskey;
+      if ($ql.ql) await $ql.asyncWSCoookie(code);
+
       const cacheValue = JSON.stringify(CookiesData, null, `\t`);
       $.write(cacheValue, CacheKey);
       if ($.mute === 'true')
@@ -248,7 +251,27 @@ function QL_API() {
       return decodeURIComponent(ck.match(/pt_pin=(.+?);/)[1]);
     }
 
+    async asyncWSCoookie(cookieValue) {
+      await this.login();
+      if (this.headers.Authorization) {
+        const qlCk = (await this.getEnvs('JD_WSCK')).data;
+        const DecodeName = this.getUsername(cookieValue);
+        const current = qlCk.find(
+          (item) => getUsername(item.value) === DecodeName,
+        );
+        if (current) {
+          current.value = cookieValue;
+          await this.editEnvs(current);
+        } else {
+          await this.addEnvs([{ name: 'JD_WSCK', value: cookieValue }]);
+        }
+        if ($.mute !== 'true')
+          $.notify('用户名: ' + DecodeName, '', '同步wskey更新青龙成功🎉');
+      }
+    }
+
     async asyncCoookie(cookieValue) {
+      await this.login();
       if (this.headers.Authorization) {
         const qlCk = (await this.getEnvs('JD_COOKIE')).data;
         const DecodeName = this.getUsername(cookieValue);
