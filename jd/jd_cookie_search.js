@@ -74,7 +74,10 @@ cookiesRemark.forEach((item) => {
       avatar,
       ...ckRemarkFormat[username],
       status,
-      remark: nickname || ckRemarkFormat[username].remark,
+      remark:
+        nickname || ckRemarkFormat[username]
+          ? ckRemarkFormat[username].remark
+          : '',
     };
     if (status === '未登录') notLogin.push(item);
     ckFormat.push(item);
