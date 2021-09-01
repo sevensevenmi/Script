@@ -86,16 +86,15 @@ cookiesRemark.forEach((item) => {
     console.log(
       `----------------未登录账号【${notLogin.length}】----------------`,
     );
-    console.log(JSON.stringify(notLogin, null, `\t`));
+    console.log(
+      notLogin.map((item) => `${item.username}【${item.nickname}】`).join(`\n`),
+    );
     $.msg = `未登录账号：\n ${notLogin
       .map((item) => `账号【${item.index}】:${item.nickname || item.username}`)
-      .join('\n')}`;
+      .join(`\n`)}`;
   }
   $.write(JSON.stringify(ckFormat, null, `\t`), remark_key);
   console.log(`检测到${keyword.length - 1}个搜索条件：${keyword.join(',')}`);
-  console.log('=================');
-  console.log(ckData.join('&'));
-  console.log('=================');
   if (keyword && keyword[0]) {
     console.log('开始搜索中');
     const searchValue = ckFormat.filter((item, index) => {
