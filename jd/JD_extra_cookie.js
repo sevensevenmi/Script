@@ -89,7 +89,6 @@ async function GetCookie() {
       const CV = $request.headers['Cookie'] || $request.headers['cookie'];
       if (CV.match(/(pt_key=.+?pt_pin=|pt_pin=.+?pt_key=)/)) {
         const CookieValue = CV.match(/pt_key=.+?;/) + CV.match(/pt_pin=.+?;/);
-        const wskey = CV.match(/wskey=.+?;/);
         const DecodeName = getUsername(CookieValue);
         let updateIndex = null,
           CookieName,
@@ -104,16 +103,13 @@ async function GetCookie() {
 
         if (updateIndex !== null) {
           updateCookiesData[updateIndex].cookie = CookieValue;
-          if (wskey) updateCookiesData[updateIndex].wskey = wskey;
           CookieName = '【账号' + (updateIndex + 1) + '】';
           tipPrefix = '更新京东';
         } else {
-          const newItem = {
+          updateCookiesData.push({
             userName: DecodeName,
             cookie: CookieValue,
-          };
-          if (wskey) newItem.wskey = wskey;
-          updateCookiesData.push(newItem);
+          });
           CookieName = '【账号' + updateCookiesData.length + '】';
           tipPrefix = '首次写入京东';
         }
@@ -130,6 +126,28 @@ async function GetCookie() {
         );
       } else {
         $.notify('写入京东Cookie失败', '', '请查看脚本内说明, 登录网页获取 ‼️');
+      }
+    } else if (
+      $request.headers &&
+      $request.url.indexOf('functionId=newUserInfo')
+    ) {
+      if (CV.match(/wskey=.+?;/) && CV.match(/pt_pin=.+?;/)) {
+        const code = CV.match(/wskey=.+?;/) + CV.match(/pt_pin=.+?;/);
+        const wskey = CV.match(/wskey=.+?;/);
+        const username = getUsername(code);
+
+        const CookiesData = getCache();
+        let updateIndex = false;
+        CookiesData.forEach((item, index) => {
+          if (item.userName === username) {
+            updateIndex = index;
+          }
+        });
+        if (updateIndex === false) return;
+        CookiesData[updateIndex].wskey = wskey;
+        const cacheValue = JSON.stringify(updateCookiesData, null, `\t`);
+        $.write(cacheValue, CacheKey);
+        $.notify('用户名: ' + username, '', '更新wskey成功 🎉');
       }
     } else {
       $.notify('写入京东Cookie失败', '', '请检查匹配URL或配置内脚本类型 ‼️');
