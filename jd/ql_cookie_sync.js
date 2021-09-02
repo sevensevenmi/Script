@@ -48,7 +48,9 @@ $.log(`账号：${account.username}`);
   const cookiesRes = await getCookies();
   const ids = cookiesRes.data.map((item) => item._id);
   await delCookie(ids);
-  $.log('清空 cookie');
+  const wskeyRes = await getCookies('JD_WSCK');
+  await delCookie(wskeyRes.data.map((item) => item._id));
+  $.log('清空 cookie 和 wskey');
 
   const addData = [];
   const wsCookie = [];
@@ -61,7 +63,6 @@ $.log(`账号：${account.username}`);
       remarks += `&${remark[username].remark}`;
       if (remark[username].qywxUserId)
         remarks += `&${remark[username].qywxUserId}`;
-        
     } else {
       remarks = username;
     }
@@ -111,8 +112,8 @@ function login() {
   return $.http.post(opt).then((response) => JSON.parse(response.body));
 }
 
-function getCookies() {
-  const opt = { url: getURL(urlStr) + `?searchValue=JD_COOKIE`, headers };
+function getCookies(searchValue = 'JD_COOKIE') {
+  const opt = { url: getURL(urlStr) + `?searchValue=${searchValue}`, headers };
   return $.http.get(opt).then((response) => JSON.parse(response.body));
 }
 
