@@ -70,7 +70,7 @@ $.log(`账号：${account.username}`);
     if (jd_cookie.wskey) {
       wsCookie.push({
         name: 'JD_WSCK',
-        remarks: remarks,
+        remarks: remarks.split('&')[0],
         value: `${jd_cookie.wskey}pt_pin=${username};`,
       });
     }
