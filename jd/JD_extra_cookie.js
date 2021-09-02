@@ -87,7 +87,10 @@ function updateJDHelp(username) {
 
 async function GetCookie() {
   const CV = $request.headers['Cookie'] || $request.headers['cookie'];
-  if ($request.headers && $request.url.indexOf('GetJDUserInfoUnion') > -1) {
+  if (
+    $request.url.indexOf('GetJDUserInfoUnion') > -1 ||
+    $request.url.indexOf('/log/sdk') > -1
+  ) {
     if (CV.match(/(pt_key=.+?pt_pin=|pt_pin=.+?pt_key=)/)) {
       const CookieValue = CV.match(/pt_key=.+?;/) + CV.match(/pt_pin=.+?;/);
       const DecodeName = getUsername(CookieValue);
@@ -103,6 +106,8 @@ async function GetCookie() {
       });
 
       if (updateIndex !== null) {
+        if (updateCookiesData[updateIndex].cookie === CookieValue)
+          return console.log('cookie 一致无需更新');
         updateCookiesData[updateIndex].cookie = CookieValue;
         CookieName = '【账号' + (updateIndex + 1) + '】';
         tipPrefix = '更新京东';
