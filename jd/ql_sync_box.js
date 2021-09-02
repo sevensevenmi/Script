@@ -38,31 +38,36 @@ $.log(`账号：${account.username}`);
   token = loginRes.data.token;
   headers.Authorization = `Bearer ${token}`;
   const cookiesRes = await getCookies();
-  
-  const cookies = cookiesRes.data.map(item => {
+
+  const cookies = cookiesRes.data.map((item) => {
     const key = getUsername(item.value);
-    return {userName: key, cookie: item.value};
+    return { userName: key, cookie: item.value };
   });
-  const saveCookie = jd_cookies.map(item => {
-    const qlCk = cookies.find(ql => ql.userName === item.userName);
-    if (qlCk) return qlCk;
+  const saveCookie = jd_cookies.map((item) => {
+    const qlCk = cookies.find((ql) => ql.userName === item.userName);
+    if (qlCk) return { ...item, ...qlCk };
     return item;
   });
 
-  const userNames = saveCookie.map(item => item.userName);
-  cookies.forEach(ql => {
+  const userNames = saveCookie.map((item) => item.userName);
+  cookies.forEach((ql) => {
     if (userNames.indexOf(ql.userName) === -1) saveCookie.push(ql);
   });
   $.write(JSON.stringify(saveCookie, null, `\t`), cookiesKey);
   if ($.read('mute') !== 'true') {
     return $.notify(
-      title, '已同步账号', `${cookies.map(item => item.userName).join(`\n`)}`);
+      title,
+      '已同步账号',
+      `${cookies.map((item) => item.userName).join(`\n`)}`,
+    );
   }
-})().catch((e) => {
-  $.log(JSON.stringify(e));
-}).finally(() => {
-  $.done();
-});
+})()
+  .catch((e) => {
+    $.log(JSON.stringify(e));
+  })
+  .finally(() => {
+    $.done();
+  });
 
 function getURL(api, key = 'api') {
   return `${baseURL}/${key}/${api}`;
@@ -78,17 +83,17 @@ function login() {
 }
 
 function getCookies() {
-  const opt = {url: getURL(urlStr) + `?searchValue=JD_COOKIE`, headers};
+  const opt = { url: getURL(urlStr) + `?searchValue=JD_COOKIE`, headers };
   return $.http.get(opt).then((response) => JSON.parse(response.body));
 }
 
 function addCookies(cookies) {
-  const opt = {url: getURL(urlStr), headers, body: JSON.stringify(cookies)};
+  const opt = { url: getURL(urlStr), headers, body: JSON.stringify(cookies) };
   return $.http.post(opt).then((response) => JSON.parse(response.body));
 }
 
 function delCookie(ids) {
-  const opt = {url: getURL(urlStr), headers, body: JSON.stringify(ids)};
+  const opt = { url: getURL(urlStr), headers, body: JSON.stringify(ids) };
   return $.http.delete(opt).then((response) => JSON.parse(response.body));
 }
 
@@ -109,22 +114,22 @@ function ENV() {
   const isNode = typeof require == 'function' && !isJSBox;
   const isRequest = typeof $request !== 'undefined';
   const isScriptable = typeof importModule !== 'undefined';
-  return {isQX, isLoon, isSurge, isNode, isJSBox, isRequest, isScriptable};
+  return { isQX, isLoon, isSurge, isNode, isJSBox, isRequest, isScriptable };
 }
 
-function HTTP(defaultOptions = {baseURL: ''}) {
-  const {isQX, isLoon, isSurge, isScriptable, isNode} = ENV();
+function HTTP(defaultOptions = { baseURL: '' }) {
+  const { isQX, isLoon, isSurge, isScriptable, isNode } = ENV();
   const methods = ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', 'PATCH'];
-  const URL_REGEX = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
+  const URL_REGEX =
+    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
 
   function send(method, options) {
-
-    options = typeof options === 'string' ? {url: options} : options;
+    options = typeof options === 'string' ? { url: options } : options;
     const baseURL = defaultOptions.baseURL;
     if (baseURL && !URL_REGEX.test(options.url || '')) {
       options.url = baseURL ? baseURL + options.url : options.url;
     }
-    options = {...defaultOptions, ...options};
+    options = { ...defaultOptions, ...options };
     const timeout = options.timeout;
     const events = {
       ...{
@@ -139,7 +144,7 @@ function HTTP(defaultOptions = {baseURL: ''}) {
 
     let worker;
     if (isQX) {
-      worker = $task.fetch({method, ...options});
+      worker = $task.fetch({ method, ...options });
     } else if (isLoon || isSurge || isNode) {
       worker = new Promise((resolve, reject) => {
         const request = isNode ? require('request') : $httpClient;
@@ -159,33 +164,37 @@ function HTTP(defaultOptions = {baseURL: ''}) {
       request.headers = options.headers;
       request.body = options.body;
       worker = new Promise((resolve, reject) => {
-        request.loadString().then((body) => {
-          resolve({
-            statusCode: request.response.statusCode,
-            headers: request.response.headers,
-            body,
-          });
-        }).catch((err) => reject(err));
+        request
+          .loadString()
+          .then((body) => {
+            resolve({
+              statusCode: request.response.statusCode,
+              headers: request.response.headers,
+              body,
+            });
+          })
+          .catch((err) => reject(err));
       });
     }
 
     let timeoutid;
     const timer = timeout
       ? new Promise((_, reject) => {
-        timeoutid = setTimeout(() => {
-          events.onTimeout();
-          return reject(
-            `${method} URL: ${options.url} exceeds the timeout ${timeout} ms`,
-          );
-        }, timeout);
-      })
+          timeoutid = setTimeout(() => {
+            events.onTimeout();
+            return reject(
+              `${method} URL: ${options.url} exceeds the timeout ${timeout} ms`,
+            );
+          }, timeout);
+        })
       : null;
 
-    return (timer
+    return (
+      timer
         ? Promise.race([timer, worker]).then((res) => {
-          clearTimeout(timeoutid);
-          return res;
-        })
+            clearTimeout(timeoutid);
+            return res;
+          })
         : worker
     ).then((resp) => events.onResponse(resp));
   }
@@ -199,7 +208,7 @@ function HTTP(defaultOptions = {baseURL: ''}) {
 }
 
 function API(name = 'untitled', debug = false) {
-  const {isQX, isLoon, isSurge, isNode, isJSBox, isScriptable} = ENV();
+  const { isQX, isLoon, isSurge, isNode, isJSBox, isScriptable } = ENV();
   return new (class {
     constructor(name, debug) {
       this.name = name;
@@ -222,12 +231,12 @@ function API(name = 'untitled', debug = false) {
       this.initCache();
 
       const delay = (t, v) =>
-        new Promise(function(resolve) {
+        new Promise(function (resolve) {
           setTimeout(resolve.bind(null, v), t);
         });
 
-      Promise.prototype.delay = function(t) {
-        return this.then(function(v) {
+      Promise.prototype.delay = function (t) {
+        return this.then(function (v) {
           return delay(t, v);
         });
       };
@@ -248,7 +257,7 @@ function API(name = 'untitled', debug = false) {
           this.node.fs.writeFileSync(
             fpath,
             JSON.stringify({}),
-            {flag: 'wx'},
+            { flag: 'wx' },
             (err) => console.log(err),
           );
         }
@@ -260,7 +269,7 @@ function API(name = 'untitled', debug = false) {
           this.node.fs.writeFileSync(
             fpath,
             JSON.stringify({}),
-            {flag: 'wx'},
+            { flag: 'wx' },
             (err) => console.log(err),
           );
           this.cache = {};
@@ -281,13 +290,13 @@ function API(name = 'untitled', debug = false) {
         this.node.fs.writeFileSync(
           `${this.name}.json`,
           data,
-          {flag: 'w'},
+          { flag: 'w' },
           (err) => console.log(err),
         );
         this.node.fs.writeFileSync(
           'root.json',
           JSON.stringify(this.root),
-          {flag: 'w'},
+          { flag: 'w' },
           (err) => console.log(err),
         );
       }
