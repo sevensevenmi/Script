@@ -148,7 +148,7 @@ async function GetCookie() {
       const CookiesData = getCache();
       let updateIndex = false;
       console.log(`用户名：${username}`);
-      console.log(`同步 wskey: ${code}`)
+      console.log(`同步 wskey: ${code}`);
       CookiesData.forEach((item, index) => {
         if (item.userName === username) {
           updateIndex = index;
@@ -297,13 +297,22 @@ function QL_API() {
           console.log('该账号无需更新');
           return;
         }
+        let response;
         if (current) {
           current.value = cookieValue;
-          await this.editEnvs(current);
+          response = await this.editEnvs({
+            name: 'JD_WSCK',
+            remarks: current.remarks,
+            value: cookieValue,
+            _id: current._id,
+          });
         } else {
-          await this.addEnvs([{ name: 'JD_WSCK', value: cookieValue }]);
+          response = await this.addEnvs([
+            { name: 'JD_WSCK', value: cookieValue },
+          ]);
         }
-        if ($.mute !== 'true')
+        console.log(JSON.stringify(response));
+        if ($.mute !== 'true' && response.code === 200)
           this.$.notify('用户名: ' + DecodeName, '', '同步wskey更新青龙成功🎉');
       }
     }
@@ -323,13 +332,22 @@ function QL_API() {
           console.log('该账号无需更新');
           return;
         }
+        let response;
         if (current) {
           current.value = cookieValue;
-          await this.editEnvs(current);
+          response = await this.editEnvs({
+            name: 'JD_COOKIE',
+            remarks: current.remarks,
+            value: cookieValue,
+            _id: current._id,
+          });
         } else {
-          await this.addEnvs([{ name: 'JD_COOKIE', value: cookieValue }]);
+          response = await this.addEnvs([
+            { name: 'JD_COOKIE', value: cookieValue },
+          ]);
         }
-        if ($.mute !== 'true')
+        console.log(JSON.stringify(response));
+        if ($.mute !== 'true' && response.code === 200)
           this.$.notify('用户名: ' + DecodeName, '', '同步更新青龙成功🎉');
       }
     }
