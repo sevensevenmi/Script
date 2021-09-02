@@ -157,9 +157,8 @@ async function GetCookie() {
 
       console.log(updateIndex === false ? '未找到相关账号' : '已匹配到账号');
       if (updateIndex === false) return;
-      if ($ql.ql) await $ql.asyncWSCoookie(code);
-
       if (CookiesData[updateIndex].wskey === wskey) return;
+      if ($ql.ql) await $ql.asyncWSCoookie(code);
 
       CookiesData[updateIndex].wskey = wskey;
       const cacheValue = JSON.stringify(CookiesData, null, `\t`);
