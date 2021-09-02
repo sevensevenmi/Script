@@ -64,6 +64,9 @@ cookiesRemark.forEach((item) => {
 
     console.log(`检查结束：账号【${ckIndex}】 ${username}【${status}】`);
     console.log('===================================');
+    let newRemark =
+      nickname ||
+      (ckRemarkFormat[username] ? ckRemarkFormat[username].remark : '');
 
     const item = {
       index: ckIndex,
@@ -74,10 +77,7 @@ cookiesRemark.forEach((item) => {
       avatar,
       ...ckRemarkFormat[username],
       status,
-      remark:
-        nickname || ckRemarkFormat[username]
-          ? ckRemarkFormat[username].remark
-          : '',
+      remark: newRemark,
     };
     if (status === '未登录') notLogin.push(item);
     ckFormat.push(item);
