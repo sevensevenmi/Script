@@ -71,7 +71,7 @@ $.log(`账号：${account.username}`);
       wsCookie.push({
         name: 'JD_WSCK',
         remarks: remarks,
-        value: `wskey=${jd_cookie.wskey};pt_pin=${username};`,
+        value: `${jd_cookie.wskey}pt_pin=${username};`,
       });
     }
   }
