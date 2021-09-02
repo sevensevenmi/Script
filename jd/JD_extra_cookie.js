@@ -106,8 +106,10 @@ async function GetCookie() {
       });
 
       if (updateIndex !== null) {
-        if (updateCookiesData[updateIndex].cookie === CookieValue)
-          return console.log('cookie 一致无需更新');
+        const response = await TotalBean(updateCookiesData[updateIndex].cookie);
+        if (response && response.retcode === '0')
+          return console.log('cookie 未过期，无需更新');
+
         updateCookiesData[updateIndex].cookie = CookieValue;
         CookieName = '【账号' + (updateIndex + 1) + '】';
         tipPrefix = '更新京东';
@@ -165,6 +167,23 @@ async function GetCookie() {
   } else {
     $.notify('写入京东Cookie失败', '', '请检查匹配URL或配置内脚本类型 ‼️');
   }
+}
+
+async function TotalBean(Cookie) {
+  const opt = {
+    url: 'https://me-api.jd.com/user_new/info/GetJDUserInfoUnion?sceneval=2&sceneval=2&g_login_type=1&g_ty=ls',
+    headers: {
+      cookie: Cookie,
+      Referer: 'https://home.m.jd.com/',
+    },
+  };
+  return $.http.get(opt).then((response) => {
+    try {
+      return JSON.parse(response.body);
+    } catch (e) {
+      return false;
+    }
+  });
 }
 
 function QL_API() {
