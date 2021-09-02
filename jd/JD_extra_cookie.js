@@ -94,6 +94,7 @@ async function GetCookie() {
   ) {
     if (CV.match(/(pt_key=.+?pt_pin=|pt_pin=.+?pt_key=)/)) {
       const CookieValue = CV.match(/pt_key=.+?;/) + CV.match(/pt_pin=.+?;/);
+      if (CookieValue.indexOf('fake_') > -1) return console.log('异常账号');
       const DecodeName = getUsername(CookieValue);
       let updateIndex = null,
         CookieName,
