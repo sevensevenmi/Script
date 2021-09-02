@@ -147,7 +147,8 @@ async function GetCookie() {
       const username = getUsername(code);
       const CookiesData = getCache();
       let updateIndex = false;
-      console.log(username);
+      console.log(`用户名：${username}`);
+      console.log(`同步 wskey: ${code}`)
       CookiesData.forEach((item, index) => {
         if (item.userName === username) {
           updateIndex = index;
