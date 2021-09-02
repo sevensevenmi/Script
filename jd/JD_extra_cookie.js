@@ -135,7 +135,7 @@ async function GetCookie() {
         tipPrefix + CookieName + 'Cookie成功 🎉',
       );
     } else {
-      $.notify('写入京东Cookie失败', '', '请查看脚本内说明, 登录网页获取 ‼️');
+      console.log('ck 写入失败，未找到相关 ck');
     }
   } else if (
     $request.headers &&
