@@ -275,6 +275,15 @@ function QL_API() {
       return this.$.http.put(opt).then((response) => JSON.parse(response.body));
     }
 
+    enabledEnvs(ids) {
+      const opt = {
+        url: this.getURL(`/enable`),
+        headers: this.headers,
+        body: JSON.stringify(ids),
+      };
+      return this.$.http.put(opt).then((response) => JSON.parse(response.body));
+    }
+
     getUsername(ck) {
       if (!ck) return '';
       console.log(ck);
@@ -306,6 +315,7 @@ function QL_API() {
               value: cookieValue,
               _id: current._id,
             });
+            response = await this.enabledEnvs([current._id]);
           } else {
             response = await this.addEnvs([
               { name: 'JD_WSCK', value: cookieValue },
@@ -349,6 +359,7 @@ function QL_API() {
               value: cookieValue,
               _id: current._id,
             });
+            response = await this.enabledEnvs([current._id]);
           } else {
             response = await this.addEnvs([
               { name: 'JD_COOKIE', value: cookieValue },
