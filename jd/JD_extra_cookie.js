@@ -165,10 +165,11 @@ async function GetCookie() {
       });
 
       if (updateIndex === false) return console.log(`未找到相关账号`);
-      if (CookiesData[updateIndex].wskey === wskey)
+      if (CookiesData[updateIndex].wskey === wskey) {
         return console.log(
           `本地 wskey 一致无需更新，若需更新面板，请到 boxjs 同步`,
         );
+      }
       try {
         if ($ql.ql) await $ql.asyncWSCoookie(code);
       } catch (e) {
