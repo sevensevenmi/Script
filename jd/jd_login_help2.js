@@ -41,7 +41,7 @@ $.html = $response.body;
 
 const isJS = $.url.match(/^https:\/\/.*\.com\/.*(\.js)/);
 try {
-  if (!$.html.includes || !$.html.includes('</html>')) $.done({body: $.html});
+  if (!$.html.includes || !$.html.includes('</html>')) $.done({ body: $.html });
 } catch (e) {
   $.done();
 }
@@ -56,14 +56,9 @@ function getRem(r) {
 // 初始化 boxjs 数据
 function initBoxJSData() {
   const CookiesJD = JSON.parse($.read(CacheKey) || '[]');
-  const CookieJD = $.read('#CookieJD');
-  const CookieJD2 = $.read('#CookieJD2');
-  const ckData = CookiesJD.map(item => item.cookie);
-  if (CookieJD) ckData.unshift(CookieJD);
-  if (CookieJD2) ckData.unshift(CookieJD2);
 
   const cookiesFormat = {};
-  ckData.forEach(item => {
+  CookiesJD.forEach((item) => {
     let username = item.match(/pt_pin=(.+?);/)[1];
     username = decodeURIComponent(username);
     cookiesFormat[username] = item;
@@ -71,17 +66,17 @@ function initBoxJSData() {
   let cookiesRemark = JSON.parse($.read(remark_key) || '[]');
   const keyword = ($.read(searchKey) || '').split(',');
   cookiesRemark = cookiesRemark.filter((item, index) => {
-    return keyword[0] ? (
-      keyword.indexOf(`${index}`) > -1 ||
-      keyword.indexOf(item.username) > -1 ||
-      keyword.indexOf(item.nickname) > -1 ||
-      keyword.indexOf(item.status) > -1
-    ) : true;
+    return keyword[0]
+      ? keyword.indexOf(`${index}`) > -1 ||
+          keyword.indexOf(item.username) > -1 ||
+          keyword.indexOf(item.nickname) > -1 ||
+          keyword.indexOf(item.status) > -1
+      : true;
   });
 
-  cookiesRemark = cookiesRemark.map(
-    item => ({...item, cookie: cookiesFormat[item.username]})).filter(
-    item => !!item.cookie);
+  cookiesRemark = cookiesRemark
+    .map((item) => ({ ...item, ...cookiesFormat[item.username] }))
+    .filter((item) => !!item.cookie);
 
   return cookiesRemark;
 }
@@ -115,7 +110,7 @@ function createStyle() {
     padding-right: 3px;
     color: #fff;
     font-size: ${getRem(0.1)};
-    margin-bottom: ${getRem(.1)};
+    margin-bottom: ${getRem(0.1)};
     border-top: 1px solid #e8e8e8;
     border-bottom: 1px solid #e8e8e8;
     border-left: 1px solid #e8e8e8;
@@ -128,7 +123,7 @@ function createStyle() {
     line-height: 27px;
     text-align: center;
     display: block;
-    font-size: ${getRem(.25)};
+    font-size: ${getRem(0.25)};
   }
   #cus-mask{
     position: fixed;
@@ -252,7 +247,7 @@ function createStyle() {
     box-sizing: border-box;
   }
   .cus-avatar{
-     padding: ${getRem(.05)};
+     padding: ${getRem(0.05)};
      display: flex;
      align-items: center;
      border: 1px solid #eee;
@@ -269,7 +264,7 @@ function createStyle() {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: ${getRem(.1)};
+    font-size: ${getRem(0.1)};
     border: 1px solid #f7bb10;
     overflow: hidden;
     padding: ${getRem(0.1)};
@@ -346,25 +341,56 @@ function createStyle() {
     75%{ box-shadow: 0 0 6px #52c41a}
     100%{ box-shadow: 0 0 4px #52c41a}
   }
+  .ant-tag{
+    box-sizing: border-box;
+    margin: 0 8px 0 0;
+    color: #000000d9;
+    display: inline-block;
+    height: auto;
+    padding: 0 7px;
+    font-size: ${getRem(0.1)};
+    white-space: nowrap;
+    background: #fafafa;
+    border: 1px solid #d9d9d9;
+    border-radius: ${getRem(0.1)};
+    opacity: 1;
+    transition: all .3s;
+  }
+  .ant-tag-cyan{
+    color: #08979c;
+    background: #e6fffb;
+    border-color: #87e8de;
+  }
+  .ant-tag-magenta{
+    color: #c41d7f;
+    background: #fff0f6;
+    border-color: #ffadd2;
+  }
 </style>
 `;
 }
 
-const accounts = cookiesRemark.map(
-  item => {
+const accounts = cookiesRemark
+  .map((item) => {
     const status = item.status === '正常';
-    return (`
-<div class="cus-avatar" data-value="${item.mobile}" data-name="${item.username}">
-  <div class="avatar_img" style="background-image: url(${item.avatar ||
-    '//img11.360buyimg.com/jdphoto/s120x120_jfs/t21160/90/706848746/2813/d1060df5/5b163ef9N4a3d7aa6.png'});color: #fff"></div>
+    const className = item.wskey ? 'ant-tag-cyan' : 'ant-tag-magenta';
+    const tag = item.wskey ? 'app' : 'web';
+    return `
+<div class="cus-avatar" data-value="${item.mobile}" data-name="${
+      item.username
+    }">
+  <div class="avatar_img" style="background-image: url(${
+    item.avatar ||
+    '//img11.360buyimg.com/jdphoto/s120x120_jfs/t21160/90/706848746/2813/d1060df5/5b163ef9N4a3d7aa6.png'
+  });color: #fff"></div>
   <div class="cususer_info">
-     <p>${item.nickname} </p>
+     <p>${item.nickname} <span class="ant-tag ${className}">${tag}</span></p>
      <span>${item.username}</span>
   </div>
   <span class="cus-icon ${status ? '' : 'cus-err'}"></span>
-</div>`);
-  }).
-  join('');
+</div>`;
+  })
+  .join('');
 
 // 生成 html 标签
 function createHTML() {
@@ -377,9 +403,11 @@ function createHTML() {
     <div class="cus-content">
       <div class="cus-view" id="cus-username">京东账号列表</div>
       <div id="account_list">
-          ${!accounts.length
-    ? '<div class="not_content">未找到账号，请去 <span style="color: red" onclick="window.location.href=\'http://boxjs.net\'">【BoxJS】</span> 初始化</div>'
-    : accounts}
+          ${
+            !accounts.length
+              ? '<div class="not_content">未找到账号，请去 <span style="color: red" onclick="window.location.href=\'http://boxjs.net\'">【BoxJS】</span> 初始化</div>'
+              : accounts
+          }
       </div>
     </div>
     <div class="cus-footer">
@@ -641,13 +669,14 @@ const infuseScript = createScript();
 const infuseHTML = createHTML();
 
 function getInfuse() {
-  return isJS ? `
+  return isJS
+    ? `
 const bodyELem = document.body;
 bodyELem.insertAdjacentHTML('beforeEnd', \`${infuseStyles}\`);
 bodyELem.insertAdjacentHTML('beforeEnd', \`${infuseHTML}\`);
 ${infuseScript.replace('<script>', '').replace('</script>', '')}
-` :
-    `
+`
+    : `
 ${infuseStyles}
 ${infuseHTML}
 ${infuseScript}
@@ -656,16 +685,16 @@ ${infuseScript}
 
 const infuseText = getInfuse();
 try {
-  $.html = isJS ?
-    $.html + `\n${infuseText}` :
-    $.html.replace(/(<\/html>)/, `${infuseText} </html>`);
+  $.html = isJS
+    ? $.html + `\n${infuseText}`
+    : $.html.replace(/(<\/html>)/, `${infuseText} </html>`);
 } catch (e) {
   console.log(e);
 }
 
-$.headers = {...$.headers, 'Cache-Control': 'no-cache'};
+$.headers = { ...$.headers, 'Cache-Control': 'no-cache' };
 
-$.done({body: $.html, headers: $.headers});
+$.done({ body: $.html, headers: $.headers });
 
 function ENV() {
   const isQX = typeof $task !== 'undefined';
@@ -686,21 +715,19 @@ function ENV() {
   };
 }
 
-function HTTP(defaultOptions = {baseURL: ''}) {
-  const {
-    isQX,
-    isLoon,
-    isSurge,
-    isScriptable,
-    isNode,
-  } = ENV();
+function HTTP(defaultOptions = { baseURL: '' }) {
+  const { isQX, isLoon, isSurge, isScriptable, isNode } = ENV();
   const methods = ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', 'PATCH'];
-  const URL_REGEX = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
+  const URL_REGEX =
+    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
 
   function send(method, options) {
-    options = typeof options === 'string' ? {
-      url: options,
-    } : options;
+    options =
+      typeof options === 'string'
+        ? {
+            url: options,
+          }
+        : options;
     const baseURL = defaultOptions.baseURL;
     if (baseURL && !URL_REGEX.test(options.url || '')) {
       options.url = baseURL ? baseURL + options.url : options.url;
@@ -749,34 +776,38 @@ function HTTP(defaultOptions = {baseURL: ''}) {
       request.headers = options.headers;
       request.body = options.body;
       worker = new Promise((resolve, reject) => {
-        request.loadString().then((body) => {
-          resolve({
-            statusCode: request.response.statusCode,
-            headers: request.response.headers,
-            body,
-          });
-        }).catch((err) => reject(err));
+        request
+          .loadString()
+          .then((body) => {
+            resolve({
+              statusCode: request.response.statusCode,
+              headers: request.response.headers,
+              body,
+            });
+          })
+          .catch((err) => reject(err));
       });
     }
 
     let timeoutid;
-    const timer = timeout ?
-      new Promise((_, reject) => {
-        timeoutid = setTimeout(() => {
-          events.onTimeout();
-          return reject(
-            `${method} URL: ${options.url} exceeds the timeout ${timeout} ms`,
-          );
-        }, timeout);
-      }) :
-      null;
+    const timer = timeout
+      ? new Promise((_, reject) => {
+          timeoutid = setTimeout(() => {
+            events.onTimeout();
+            return reject(
+              `${method} URL: ${options.url} exceeds the timeout ${timeout} ms`,
+            );
+          }, timeout);
+        })
+      : null;
 
-    return (timer ?
-        Promise.race([timer, worker]).then((res) => {
-          clearTimeout(timeoutid);
-          return res;
-        }) :
-        worker
+    return (
+      timer
+        ? Promise.race([timer, worker]).then((res) => {
+            clearTimeout(timeoutid);
+            return res;
+          })
+        : worker
     ).then((resp) => events.onResponse(resp));
   }
 
@@ -789,14 +820,7 @@ function HTTP(defaultOptions = {baseURL: ''}) {
 }
 
 function API(name = 'untitled', debug = false) {
-  const {
-    isQX,
-    isLoon,
-    isSurge,
-    isNode,
-    isJSBox,
-    isScriptable,
-  } = ENV();
+  const { isQX, isLoon, isSurge, isNode, isJSBox, isScriptable } = ENV();
   return new (class {
     constructor(name, debug) {
       this.name = name;
@@ -819,12 +843,12 @@ function API(name = 'untitled', debug = false) {
       this.initCache();
 
       const delay = (t, v) =>
-        new Promise(function(resolve) {
+        new Promise(function (resolve) {
           setTimeout(resolve.bind(null, v), t);
         });
 
-      Promise.prototype.delay = function(t) {
-        return this.then(function(v) {
+      Promise.prototype.delay = function (t) {
+        return this.then(function (v) {
           return delay(t, v);
         });
       };
@@ -843,7 +867,8 @@ function API(name = 'untitled', debug = false) {
         if (!this.node.fs.existsSync(fpath)) {
           this.node.fs.writeFileSync(
             fpath,
-            JSON.stringify({}), {
+            JSON.stringify({}),
+            {
               flag: 'wx',
             },
             (err) => console.log(err),
@@ -856,7 +881,8 @@ function API(name = 'untitled', debug = false) {
         if (!this.node.fs.existsSync(fpath)) {
           this.node.fs.writeFileSync(
             fpath,
-            JSON.stringify({}), {
+            JSON.stringify({}),
+            {
               flag: 'wx',
             },
             (err) => console.log(err),
@@ -878,14 +904,16 @@ function API(name = 'untitled', debug = false) {
       if (isNode) {
         this.node.fs.writeFileSync(
           `${this.name}.json`,
-          data, {
+          data,
+          {
             flag: 'w',
           },
           (err) => console.log(err),
         );
         this.node.fs.writeFileSync(
           'root.json',
-          JSON.stringify(this.root, null, 2), {
+          JSON.stringify(this.root, null, 2),
+          {
             flag: 'w',
           },
           (err) => console.log(err),
@@ -959,7 +987,8 @@ function API(name = 'untitled', debug = false) {
         $notification.post(
           title,
           subtitle,
-          content + `${mediaURL ? '\n多媒体:' + mediaURL : ''}`, {
+          content + `${mediaURL ? '\n多媒体:' + mediaURL : ''}`,
+          {
             url: openURL,
           },
         );
