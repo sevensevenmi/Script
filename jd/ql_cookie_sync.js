@@ -79,12 +79,21 @@ $.log(`账号：${account.username}`);
   if (wsCookie.length) await addCookies(wsCookie);
 
   const _cookiesRes = await getCookies();
-  const _ids = _cookiesRes.data
-    .filter((item) => item.remarks.indexOf('已过期') > -1)
-    .map((item) => item._id);
+  const _ids = [];
+  for (let index = 0; index < _cookiesRes.data.length; index++) {
+    const item = _cookiesRes.data[index];
+    const response = await TotalBean(item.value);
+    if (response.retcode !== '0') _ids.push(item);
+  }
+
   if (_ids.length > 0) {
-    console.log(`过期账号：${_ids.join('；')}`);
-    await disabled(_ids);
+    const ids = _ids.map((item) => item._id);
+    console.log(
+      `过期账号：${_ids
+        .map((item) => item.remarks || getUsername(item.value))
+        .join(`\n`)}`,
+    );
+    await disabled(ids);
   }
 
   const cookieText = jd_cookies.map((item) => item.userName).join(`\n`);
@@ -98,6 +107,23 @@ $.log(`账号：${account.username}`);
   .finally(() => {
     $.done();
   });
+
+async function TotalBean(Cookie) {
+  const opt = {
+    url: 'https://me-api.jd.com/user_new/info/GetJDUserInfoUnion?sceneval=2&sceneval=2&g_login_type=1&g_ty=ls',
+    headers: {
+      cookie: Cookie,
+      Referer: 'https://home.m.jd.com/',
+    },
+  };
+  return $.http.get(opt).then((response) => {
+    try {
+      return JSON.parse(response.body);
+    } catch (e) {
+      return {};
+    }
+  });
+}
 
 function getURL(api, key = 'api') {
   return `${baseURL}/${key}/${api}`;
