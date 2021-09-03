@@ -87,7 +87,7 @@ function updateJDHelp(username) {
 
 async function GetCookie() {
   const CV = `${$request.headers['Cookie'] || $request.headers['cookie']};`;
-  console.log(CV);
+  
   if (
     $request.url.indexOf('GetJDUserInfoUnion') > -1 ||
     $request.url.indexOf('/log/sdk') > -1
