@@ -325,19 +325,22 @@ function QL_API() {
             console.log('该账号无需更新');
             return;
           }
+          const nickName = '';
+          const remarks = remark.find((item) => item.username === DecodeName);
+          if (remarks && remarks.nickname) nickName = remarks.nickname;
           let response;
           if (current) {
             current.value = cookieValue;
             response = await this.editEnvs({
               name: 'JD_WSCK',
-              remarks: current.remarks,
+              remarks: current.remarks || nickName,
               value: cookieValue,
               _id: current._id,
             });
             response = await this.enabledEnvs([current._id]);
           } else {
             response = await this.addEnvs([
-              { name: 'JD_WSCK', value: cookieValue },
+              { name: 'JD_WSCK', value: cookieValue, remarks: nickName },
             ]);
           }
           console.log(JSON.stringify(response));
