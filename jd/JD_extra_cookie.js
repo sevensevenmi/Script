@@ -53,7 +53,7 @@ try {
 function getUsername(ck) {
   if (!ck) return '';
   console.log(ck);
-  return decodeURIComponent((ck.match(/pt_pin=(.+?);/) || [])[1]);
+  return decodeURIComponent(ck.match(/pt_pin=(.+?);/)[1]);
 }
 
 const mute = '#cks_get_mute';
@@ -126,9 +126,20 @@ async function GetCookie() {
       const cacheValue = JSON.stringify(updateCookiesData, null, `\t`);
       $.write(cacheValue, CacheKey);
       updateJDHelp(DecodeName);
-      if ($ql.ql) await $ql.asyncCoookie(CookieValue);
+      try {
+        if ($ql.ql) await $ql.asyncCoookie(CookieValue);
+      } catch (e) {
+        console.log(e);
+        console.log('青龙同步Cookie失败');
+      }
 
-      if (updateIndex !== null && $.mute === 'true') return;
+      if ($.mute === 'true') {
+        return console.log(
+          '用户名: ' + DecodeName,
+          '',
+          tipPrefix + CookieName + 'Cookie成功 🎉',
+        );
+      }
       $.notify(
         '用户名: ' + DecodeName,
         '',
@@ -155,16 +166,24 @@ async function GetCookie() {
         }
       });
 
-      console.log(updateIndex === false ? '未找到相关账号' : '已匹配到账号');
-      if (updateIndex === false) return;
-      if (CookiesData[updateIndex].wskey === wskey) return;
-      if ($ql.ql) await $ql.asyncWSCoookie(code);
+      if (updateIndex === false) return console.log(`未找到相关账号`);
+      if (CookiesData[updateIndex].wskey === wskey)
+        return console.log(
+          `本地 wskey 一致无需更新，若需更新面板，请到 boxjs 同步`,
+        );
+      try {
+        if ($ql.ql) await $ql.asyncWSCoookie(code);
+      } catch (e) {
+        console.log('青龙同步wskey失败');
+      }
 
       CookiesData[updateIndex].wskey = wskey;
       const cacheValue = JSON.stringify(CookiesData, null, `\t`);
       $.write(cacheValue, CacheKey);
-      if ($.mute === 'true')
-        return $.notify('用户名: ' + username, '', '更新wskey成功 🎉');
+      if ($.mute === 'true') {
+        return console.log('用户名: ' + username, '', '更新wskey成功 🎉');
+      }
+      return $.notify('用户名: ' + username, '', '更新wskey成功 🎉');
     }
   } else {
     console.log('未匹配到相关信息，退出抓包');
@@ -287,7 +306,7 @@ function QL_API() {
     getUsername(ck) {
       if (!ck) return '';
       console.log(ck);
-      return decodeURIComponent((ck.match(/pt_pin=(.+?);/) || [])[1]);
+      return decodeURIComponent(ck.match(/pt_pin=(.+?);/)[1]);
     }
 
     async asyncWSCoookie(cookieValue) {
@@ -322,12 +341,21 @@ function QL_API() {
             ]);
           }
           console.log(JSON.stringify(response));
-          if ($.mute !== 'true' && response.code === 200)
+          if ($.mute === 'true' && response.code === 200) {
+            return console.log(
+              '用户名: ' + DecodeName,
+              '',
+              '同步wskey更新青龙成功🎉',
+            );
+          } else if (response.code === 200) {
             this.$.notify(
               '用户名: ' + DecodeName,
               '',
               '同步wskey更新青龙成功🎉',
             );
+          } else {
+            console.log('青龙同步失败');
+          }
         }
       } catch (e) {
         console.log(e);
@@ -350,6 +378,7 @@ function QL_API() {
             console.log('该账号无需更新');
             return;
           }
+
           let response;
           if (current) {
             current.value = cookieValue;
@@ -365,9 +394,23 @@ function QL_API() {
               { name: 'JD_COOKIE', value: cookieValue },
             ]);
           }
+
           console.log(JSON.stringify(response));
-          if ($.mute !== 'true' && response.code === 200)
-            this.$.notify('用户名: ' + DecodeName, '', '同步更新青龙成功🎉');
+          if ($.mute === 'true' && response.code === 200) {
+            return console.log(
+              '用户名: ' + DecodeName,
+              '',
+              '同步Cookie更新青龙成功🎉',
+            );
+          } else if (response.code === 200) {
+            this.$.notify(
+              '用户名: ' + DecodeName,
+              '',
+              '同步Cookie更新青龙成功🎉',
+            );
+          } else {
+            console.log('青龙同步失败');
+          }
         }
       } catch (e) {
         console.log(e);
