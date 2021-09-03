@@ -135,9 +135,7 @@ async function GetCookie() {
 
       if ($.mute === 'true') {
         return console.log(
-          '用户名: ' + DecodeName,
-          '',
-          tipPrefix + CookieName + 'Cookie成功 🎉',
+          '用户名: ' + DecodeName + tipPrefix + CookieName + 'Cookie成功 🎉',
         );
       }
       $.notify(
@@ -181,7 +179,7 @@ async function GetCookie() {
       const cacheValue = JSON.stringify(CookiesData, null, `\t`);
       $.write(cacheValue, CacheKey);
       if ($.mute === 'true') {
-        return console.log('用户名: ' + username, '', '更新wskey成功 🎉');
+        return console.log('用户名: ' + username + '更新wskey成功 🎉');
       }
       return $.notify('用户名: ' + username, '', '更新wskey成功 🎉');
     }
@@ -346,9 +344,7 @@ function QL_API() {
           console.log(JSON.stringify(response));
           if ($.mute === 'true' && response.code === 200) {
             return console.log(
-              '用户名: ' + DecodeName,
-              '',
-              '同步wskey更新青龙成功🎉',
+              '用户名: ' + DecodeName + '同步wskey更新青龙成功🎉',
             );
           } else if (response.code === 200) {
             this.$.notify(
@@ -401,9 +397,7 @@ function QL_API() {
           console.log(JSON.stringify(response));
           if ($.mute === 'true' && response.code === 200) {
             return console.log(
-              '用户名: ' + DecodeName,
-              '',
-              '同步Cookie更新青龙成功🎉',
+              '用户名: ' + DecodeName + '同步Cookie更新青龙成功🎉',
             );
           } else if (response.code === 200) {
             this.$.notify(
