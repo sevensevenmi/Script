@@ -38,7 +38,7 @@ http-request ^https:\/\/me-api\.jd\.com\/user_new\/info\/GetJDUserInfoUnion tag=
 
  */
 const APIKey = 'CookiesJD';
-const $ = new API('ql', true);
+const $ = new API('ql', false);
 const CacheKey = `#${APIKey}`;
 const $ql = new QL_API();
 
