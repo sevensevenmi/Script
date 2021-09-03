@@ -126,12 +126,7 @@ async function GetCookie() {
       const cacheValue = JSON.stringify(updateCookiesData, null, `\t`);
       $.write(cacheValue, CacheKey);
       updateJDHelp(DecodeName);
-      try {
-        if ($ql.ql) await $ql.asyncCoookie(CookieValue);
-      } catch (e) {
-        console.log(e);
-        console.log('青龙同步Cookie失败');
-      }
+      if ($ql.ql) await $ql.asyncCoookie(CookieValue);
 
       if ($.mute === 'true') {
         return console.log(
@@ -165,17 +160,13 @@ async function GetCookie() {
       });
 
       if (updateIndex === false) return console.log(`未找到相关账号`);
+
       if (CookiesData[updateIndex].wskey === wskey) {
         return console.log(
           `本地 wskey 一致无需更新，若需更新面板，请到 boxjs 同步`,
         );
       }
-      try {
-        if ($ql.ql) await $ql.asyncWSCoookie(code);
-      } catch (e) {
-        console.log('青龙同步wskey失败');
-      }
-
+      if ($ql.ql) await $ql.asyncWSCoookie(code);
       CookiesData[updateIndex].wskey = wskey;
       const cacheValue = JSON.stringify(CookiesData, null, `\t`);
       $.write(cacheValue, CacheKey);
@@ -324,7 +315,7 @@ function QL_API() {
             console.log('该账号无需更新');
             return;
           }
-          const nickName = '';
+          let nickName = '';
           const remarks = remark.find((item) => item.username === DecodeName);
           if (remarks && remarks.nickname) nickName = remarks.nickname;
           let response;
