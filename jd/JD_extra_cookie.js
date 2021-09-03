@@ -282,72 +282,84 @@ function QL_API() {
     }
 
     async asyncWSCoookie(cookieValue) {
-      await this.login();
-      console.log(`青龙wskey登陆同步`);
-      if (this.headers.Authorization) {
-        let qlCk = await this.getEnvs('JD_WSCK');
-        if (!qlCk.data) return;
-        qlCk = qlCk.data;
-        const DecodeName = this.getUsername(cookieValue);
-        const current = qlCk.find(
-          (item) => getUsername(item.value) === DecodeName,
-        );
-        if (current && current.value === cookieValue) {
-          console.log('该账号无需更新');
-          return;
+      try {
+        await this.login();
+        console.log(`青龙wskey登陆同步`);
+        if (this.headers.Authorization) {
+          let qlCk = await this.getEnvs('JD_WSCK');
+          if (!qlCk.data) return;
+          qlCk = qlCk.data;
+          const DecodeName = this.getUsername(cookieValue);
+          const current = qlCk.find(
+            (item) => getUsername(item.value) === DecodeName,
+          );
+          if (current && current.value === cookieValue) {
+            console.log('该账号无需更新');
+            return;
+          }
+          let response;
+          if (current) {
+            current.value = cookieValue;
+            response = await this.editEnvs({
+              name: 'JD_WSCK',
+              remarks: current.remarks,
+              value: cookieValue,
+              _id: current._id,
+            });
+          } else {
+            response = await this.addEnvs([
+              { name: 'JD_WSCK', value: cookieValue },
+            ]);
+          }
+          console.log(JSON.stringify(response));
+          if ($.mute !== 'true' && response.code === 200)
+            this.$.notify(
+              '用户名: ' + DecodeName,
+              '',
+              '同步wskey更新青龙成功🎉',
+            );
         }
-        let response;
-        if (current) {
-          current.value = cookieValue;
-          response = await this.editEnvs({
-            name: 'JD_WSCK',
-            remarks: current.remarks,
-            value: cookieValue,
-            _id: current._id,
-          });
-        } else {
-          response = await this.addEnvs([
-            { name: 'JD_WSCK', value: cookieValue },
-          ]);
-        }
-        console.log(JSON.stringify(response));
-        if ($.mute !== 'true' && response.code === 200)
-          this.$.notify('用户名: ' + DecodeName, '', '同步wskey更新青龙成功🎉');
+      } catch (e) {
+        console.log(e);
       }
     }
 
     async asyncCoookie(cookieValue) {
-      await this.login();
-      console.log(`青龙cookie登陆同步`);
-      if (this.headers.Authorization) {
-        let qlCk = await this.getEnvs('JD_COOKIE');
-        if (!qlCk.data) return;
-        qlCk = qlCk.data;
-        const DecodeName = this.getUsername(cookieValue);
-        const current = qlCk.find(
-          (item) => getUsername(item.value) === DecodeName,
-        );
-        if (current && current.value === cookieValue) {
-          console.log('该账号无需更新');
-          return;
+      try {
+        await this.login();
+        console.log(`青龙cookie登陆同步`);
+        if (this.headers.Authorization) {
+          let qlCk = await this.getEnvs('JD_COOKIE');
+          if (!qlCk.data) return;
+          qlCk = qlCk.data;
+          const DecodeName = this.getUsername(cookieValue);
+          const current = qlCk.find(
+            (item) => getUsername(item.value) === DecodeName,
+          );
+          if (current && current.value === cookieValue) {
+            console.log('该账号无需更新');
+            return;
+          }
+          let response;
+          if (current) {
+            current.value = cookieValue;
+            response = await this.editEnvs({
+              name: 'JD_COOKIE',
+              remarks: current.remarks,
+              value: cookieValue,
+              _id: current._id,
+            });
+          } else {
+            response = await this.addEnvs([
+              { name: 'JD_COOKIE', value: cookieValue },
+            ]);
+          }
+          console.log(JSON.stringify(response));
+          if ($.mute !== 'true' && response.code === 200)
+            this.$.notify('用户名: ' + DecodeName, '', '同步更新青龙成功🎉');
         }
-        let response;
-        if (current) {
-          current.value = cookieValue;
-          response = await this.editEnvs({
-            name: 'JD_COOKIE',
-            remarks: current.remarks,
-            value: cookieValue,
-            _id: current._id,
-          });
-        } else {
-          response = await this.addEnvs([
-            { name: 'JD_COOKIE', value: cookieValue },
-          ]);
-        }
-        console.log(JSON.stringify(response));
-        if ($.mute !== 'true' && response.code === 200)
-          this.$.notify('用户名: ' + DecodeName, '', '同步更新青龙成功🎉');
+      } catch (e) {
+        console.log(e);
       }
     }
   })();
