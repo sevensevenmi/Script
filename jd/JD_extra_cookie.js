@@ -53,7 +53,7 @@ try {
 function getUsername(ck) {
   if (!ck) return '';
   console.log(ck);
-  return decodeURIComponent(ck.match(/pt_pin=(.+?);/)[1]);
+  return decodeURIComponent((ck.match(/pt_pin=(.+?);/) || [])[1]);
 }
 
 const mute = '#cks_get_mute';
@@ -278,7 +278,7 @@ function QL_API() {
     getUsername(ck) {
       if (!ck) return '';
       console.log(ck);
-      return decodeURIComponent(ck.match(/pt_pin=(.+?);/)[1]);
+      return decodeURIComponent((ck.match(/pt_pin=(.+?);/) || [])[1]);
     }
 
     async asyncWSCoookie(cookieValue) {
