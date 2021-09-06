@@ -365,8 +365,8 @@
         }
       ],
       "icons": [
-        "http://m.imeitou.com/uploads/allimg/2020050713/3qugqpwv1zi.jpeg",
-        "http://m.imeitou.com/uploads/allimg/2020050713/3qugqpwv1zi.jpeg"
+        "https://raw.githubusercontent.com/dompling/Script/master/image/1.jpeg",
+        "https://raw.githubusercontent.com/dompling/Script/master/image/1.jpeg"
       ],
       "author": "@dompling",
       "repo": "https://github.com/dompling/Script/blob/master/jd/ql_cookie_sync.js",
