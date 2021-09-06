@@ -343,7 +343,7 @@ function createStyle() {
     100%{ box-shadow: 0 0 4px #52c41a}
   }
   .ant-tag{
-   font-size: ${getRem(0.02)} !important;
+   font-size: ${getRem(0.08)} !important;
    margin-right:${getRem(0.3)} !important;
   }
   .ant-tag-cyan{
