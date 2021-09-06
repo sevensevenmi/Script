@@ -7,7 +7,7 @@
   "apps": [
     {
       "id": "10010Ck",
-      "name": "中国联通 Cookie",
+      "name": "中国联通",
       "keys": ["@YaYa_10010.cookie"],
       "author": "@dompling",
       "icons": [
@@ -54,7 +54,7 @@
     },
     {
       "id": "gistBackup",
-      "name": "gist 备份",
+      "name": "Gist备份",
       "keys": ["@gist.token", "@gist.username"],
       "author": "@dompling",
       "icons": [
@@ -96,7 +96,7 @@
     },
     {
       "id": "ZXTrains",
-      "name": "智行火车行程提醒",
+      "name": "行程提醒",
       "keys": ["@ZXTrains.travels"],
       "author": "@dompling",
       "descs_html": ["使用智行火车票 app，在未出行中获取该列表。"],
@@ -109,7 +109,7 @@
     },
     {
       "id": "gov",
-      "name": "每日健康打卡",
+      "name": "健康打卡",
       "keys": [
         "@gov.body.phone",
         "@gov.body.city",
@@ -334,7 +334,7 @@
     },
     {
       "id": "ql",
-      "name": "青龙 Cookie 同步",
+      "name": "青龙同步",
       "keys": ["@ql.ip", "@ql.username", "@ql.password", "@ql.env", "@ql.mute"],
       "settings": [
         {
@@ -442,7 +442,7 @@
     },
     {
       "id": "JD_Cookies",
-      "name": "多 Ck 管理",
+      "name": "京东账号",
       "keys": ["CookiesJD", "cks_get_mute"],
       "descs_html": [
         "请勿随意在输入框修改内容，建议通过脚本去获取cookie，若要修改，请按照JSON 格式修改（<a href=\"https://www.bejson.com/json/format\">可使用此JSON校验</a> ，或点击右上角按钮🔘进行校验(如有弹窗提示则为异常JSON)）。",
@@ -557,7 +557,7 @@
     },
     {
       "id": "birthday",
-      "name": "生日倒计时",
+      "name": "生日计时",
       "keys": [
         "@birthday.mediaImg",
         "@birthday.username",
