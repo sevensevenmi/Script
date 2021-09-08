@@ -1,3 +1,28 @@
+/*
+小米运动修改微信支付宝运动步数
+APP Store下载小米运动APP
+登入小米运动(登录方式必须是手机号码+密码(没有就用手机号码注册),下面的第三方账号(小米账号,Apple,微信)授权登录不行)
+登录成功后在 我的->第三方接入->绑定支付宝,微信
+小米运动只要不退出登录，就会自动获取新的token,即永久有效
+[MITM]
+hostname = *.huami.com
+Surge
+[Script]
+小米运动 = type=cron,cronexp="15 17 * * *",wake-system=1,timeout=3600,script-path=xmSports.js
+小米运动获取Token = type=http-request,pattern=https:\/\/account(\-cn2)?\.huami\.com(.*)\/login, requires-body=1, max-size=0, script-path=xmSports.js
+圈X
+[task_local]
+# 小米运动
+15 17 * * * xmSports.js, tag=小米运动, img-url=https://raw.githubusercontent.com/58xinian/icon/master/xmyd.png, enabled=true
+[rewrite_local]
+# 小米运动获取Token
+https:\/\/account(\-cn2)?\.huami\.com(.*)\/login url script-request-body xmSports.js
+Loon
+[Script]
+cron "15 17 * * *" script-path=xmSports.js, tag=小米运动
+http-request https:\/\/account(\-cn2)?\.huami\.com(.*)\/login script-path=xmSports.js, requires-body=true, timeout=3600, tag=小米运动获取Token
+ */
+
 const $ = new API('xmSports');
 $.token = $.read('token') || {};
 
@@ -25,12 +50,13 @@ $.message = '';
 
   const tokenInfo = {};
   for (let index = 0; index < $.userIds.length; index++) {
-    $.body = $.token[$.userIds[index]];
+    const item = $.token[$.userIds[index]];
+    $.body = item.login_token;
     const response = await login($.body);
     if (response.result === 'ok') {
       tokenInfo[$.userIds[index]] = response.token_info;
     } else {
-      console.log($.userIds[index] + ' TOKEN 过期');
+      console.log(item.phone || $.userIds[index] + ' TOKEN 过期');
     }
   }
   const userIds = Object.keys(tokenInfo);
