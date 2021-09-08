@@ -41,6 +41,16 @@
       "icons": [
         "https://raw.githubusercontent.com/58xinian/icon/master/xmyd.png",
         "https://raw.githubusercontent.com/58xinian/icon/master/xmyd.png"
+      ],
+      "scripts": [
+        {
+          "name": "初始账号",
+          "script": "https://raw.githubusercontent.com/dompling/Script/master/xmSportsCookieTask.js"
+        },
+        {
+          "name": "同步设备",
+          "script": "https://raw.githubusercontent.com/dompling/Script/master/xmSports.js"
+        }
       ]
     },
     {
