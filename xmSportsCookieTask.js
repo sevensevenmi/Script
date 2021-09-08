@@ -23,61 +23,76 @@ cron "15 17 * * *" script-path=xmSports.js, tag=小米运动
 http-request https:\/\/account(\-cn2)?\.huami\.com(.*)\/login script-path=xmSports.js, requires-body=true, timeout=3600, tag=小米运动获取Token
  */
 
-const $ = new API('xmSports');
-$.cacheKey = 'loginCode';
-$.token = $.read($.cacheKey) || [];
+const $ = new API('xmSports')
+$.cacheKey = 'loginCode'
+$.token = $.read($.cacheKey) || []
 $.notify = $.env.isNode
   ? (title, sub, content) => {
-      require('./sendNotify').sendNotify(title, `${sub}\n${content}`);
+      require('./sendNotify').sendNotify(title, `${sub}\n${content}`)
     }
-  : $.notify;
+  : $.notify
 if ($.env.isNode && !$.token.length) {
   if (process.env.XM_SPORTS_TOKEN) {
-    $.token = process.env.XM_SPORTS_TOKEN.split('&');
+    $.token = process.env.XM_SPORTS_TOKEN.split('&')
   }
 }
-console.log(`账号：${$.token.join(` `)}`);
-$.message = '';
 
-(async () => {
+$.message = ''
+;(async () => {
   try {
-    if ($request.url.indexOf('ctype') === -1) return getToken();
+    if ($request.url.indexOf('ctype') === -1) return getToken()
   } catch (error) {}
 
   if (!$.token.length) {
-    return ($.message = '请获取正确的登陆信息');
+    return ($.message = '请获取正确的登陆信息')
   }
-  const tokenInfo = {};
+  const tokenInfo = {}
+
   for (let index = 0; index < $.token.length; index++) {
-    $.body = $.token[index];
-    const response = await login();
+    $.body = $.token[index]
+    const response = await login()
+
     if (response.result === 'ok') {
-      const token_info = response.token_info;
-      tokenInfo[token_info.user_id] = token_info;
+      const token_info = response.token_info
+      tokenInfo[token_info.user_id] = {}
+      tokenInfo[token_info.user_id].email = response.thirdparty_info.email
+      tokenInfo[token_info.user_id].login_token = token_info.login_token
+      tokenInfo[token_info.user_id].code = $.body
+      console.log(tokenInfo)
     } else {
-      console.log('登陆签名过期，请重新获取');
+      $.message = `${$.body} 登陆签名过期，请重新获取\n`
+      console.log('登陆签名过期，请重新获取')
     }
   }
-  $.write(tokenInfo, 'token');
-})().finally(() => {
-  if ($.message) $.notify('小米运动', '', $.message);
-  $.done({});
-});
+  const loginCode = Object.keys(tokenInfo).map((key) => tokenInfo[key].code)
+  const phone = Object.keys(tokenInfo).map((key) => tokenInfo[key].email)
+  $.write(tokenInfo, 'token')
+  $.write(loginCode, $.cacheKey)
+  $.message += `切换账号\n${phone.join(`\n`)}`
+})()
+  .catch((e) => {
+    console.log(e)
+  })
+  .finally(() => {
+    if ($.message) $.notify('小米运动', '', $.message)
+    $.done({})
+  })
 
 async function getToken() {
+  console.log($request)
   if ($request.body) {
-    const bodys = $request.body.split('&');
+    const bodys = $request.body.split('&')
     bodys.forEach((item) => {
-      const [key, value] = item.split('=');
-      if (key === 'code') $.body = value;
-    });
+      const [key, value] = item.split('=')
+      if (key === 'code') $.body = value
+    })
     if ($.body) {
-      $.token.push($.body);
-      $.write($.token, $.cacheKey);
-      $.message = `获取 TOKEN 成功\nPs:新增成功之后进入登录的接口全部失效会再重新登陆一次`;
+      $.token.push($.body)
+      $.write($.token, $.cacheKey)
+      $.message = `获取 TOKEN 成功\nPs:新增成功之后进入登录的接口全部失效会再重新登陆一次`
     }
   }
-  return $.message;
+  return $.message
 }
 
 async function login() {
@@ -93,18 +108,18 @@ async function login() {
       Host: `account-cn2.huami.com`,
       lang: `zh_CN`,
     },
-  };
-  return $.http.post(options).then((response) => JSON.parse(response.body));
+  }
+  return $.http.post(options).then((response) => JSON.parse(response.body))
 }
 
 function ENV() {
-  const isQX = typeof $task !== 'undefined';
-  const isLoon = typeof $loon !== 'undefined';
-  const isSurge = typeof $httpClient !== 'undefined' && !isLoon;
-  const isJSBox = typeof require == 'function' && typeof $jsbox != 'undefined';
-  const isNode = typeof require == 'function' && !isJSBox;
-  const isRequest = typeof $request !== 'undefined';
-  const isScriptable = typeof importModule !== 'undefined';
+  const isQX = typeof $task !== 'undefined'
+  const isLoon = typeof $loon !== 'undefined'
+  const isSurge = typeof $httpClient !== 'undefined' && !isLoon
+  const isJSBox = typeof require == 'function' && typeof $jsbox != 'undefined'
+  const isNode = typeof require == 'function' && !isJSBox
+  const isRequest = typeof $request !== 'undefined'
+  const isScriptable = typeof importModule !== 'undefined'
   return {
     isQX,
     isLoon,
@@ -113,18 +128,18 @@ function ENV() {
     isJSBox,
     isRequest,
     isScriptable,
-  };
+  }
 }
 
 function HTTP(
   defaultOptions = {
     baseURL: '',
-  },
+  }
 ) {
-  const { isQX, isLoon, isSurge, isScriptable, isNode } = ENV();
-  const methods = ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', 'PATCH'];
+  const { isQX, isLoon, isSurge, isScriptable, isNode } = ENV()
+  const methods = ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', 'PATCH']
   const URL_REGEX =
-    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
+    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
 
   function send(method, options) {
     options =
@@ -132,19 +147,19 @@ function HTTP(
         ? {
             url: options,
           }
-        : options;
-    const baseURL = defaultOptions.baseURL;
+        : options
+    const baseURL = defaultOptions.baseURL
     if (baseURL && !URL_REGEX.test(options.url || '')) {
-      options.url = baseURL ? baseURL + options.url : options.url;
+      options.url = baseURL ? baseURL + options.url : options.url
     }
     if (options.body && options.headers && !options.headers['Content-Type']) {
-      options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+      options.headers['Content-Type'] = 'application/x-www-form-urlencoded'
     }
     options = {
       ...defaultOptions,
       ...options,
-    };
-    const timeout = options.timeout;
+    }
+    const timeout = options.timeout
     const events = {
       ...{
         onRequest: () => {},
@@ -152,34 +167,34 @@ function HTTP(
         onTimeout: () => {},
       },
       ...options.events,
-    };
+    }
 
-    events.onRequest(method, options);
+    events.onRequest(method, options)
 
-    let worker;
+    let worker
     if (isQX) {
       worker = $task.fetch({
         method,
         ...options,
-      });
+      })
     } else if (isLoon || isSurge || isNode) {
       worker = new Promise((resolve, reject) => {
-        const request = isNode ? require('request') : $httpClient;
+        const request = isNode ? require('request') : $httpClient
         request[method.toLowerCase()](options, (err, response, body) => {
-          if (err) reject(err);
+          if (err) reject(err)
           else
             resolve({
               statusCode: response.status || response.statusCode,
               headers: response.headers,
               body,
-            });
-        });
-      });
+            })
+        })
+      })
     } else if (isScriptable) {
-      const request = new Request(options.url);
-      request.method = method;
-      request.headers = options.headers;
-      request.body = options.body;
+      const request = new Request(options.url)
+      request.method = method
+      request.headers = options.headers
+      request.body = options.body
       worker = new Promise((resolve, reject) => {
         request
           .loadString()
@@ -188,87 +203,87 @@ function HTTP(
               statusCode: request.response.statusCode,
               headers: request.response.headers,
               body,
-            });
+            })
           })
-          .catch((err) => reject(err));
-      });
+          .catch((err) => reject(err))
+      })
     }
 
-    let timeoutid;
+    let timeoutid
     const timer = timeout
       ? new Promise((_, reject) => {
           timeoutid = setTimeout(() => {
-            events.onTimeout();
+            events.onTimeout()
             return reject(
-              `${method} URL: ${options.url} exceeds the timeout ${timeout} ms`,
-            );
-          }, timeout);
+              `${method} URL: ${options.url} exceeds the timeout ${timeout} ms`
+            )
+          }, timeout)
         })
-      : null;
+      : null
 
     return (
       timer
         ? Promise.race([timer, worker]).then((res) => {
-            clearTimeout(timeoutid);
-            return res;
+            clearTimeout(timeoutid)
+            return res
           })
         : worker
-    ).then((resp) => events.onResponse(resp));
+    ).then((resp) => events.onResponse(resp))
   }
 
-  const http = {};
+  const http = {}
   methods.forEach(
     (method) =>
-      (http[method.toLowerCase()] = (options) => send(method, options)),
-  );
-  return http;
+      (http[method.toLowerCase()] = (options) => send(method, options))
+  )
+  return http
 }
 
 function API(name = 'untitled', debug = false) {
-  const { isQX, isLoon, isSurge, isNode, isJSBox, isScriptable } = ENV();
+  const { isQX, isLoon, isSurge, isNode, isJSBox, isScriptable } = ENV()
   return new (class {
     constructor(name, debug) {
-      this.name = name;
-      this.debug = debug;
+      this.name = name
+      this.debug = debug
 
-      this.http = HTTP();
-      this.env = ENV();
+      this.http = HTTP()
+      this.env = ENV()
 
       this.node = (() => {
         if (isNode) {
-          const fs = require('fs');
+          const fs = require('fs')
 
           return {
             fs,
-          };
+          }
         } else {
-          return null;
+          return null
         }
-      })();
-      this.initCache();
+      })()
+      this.initCache()
 
       const delay = (t, v) =>
         new Promise(function (resolve) {
-          setTimeout(resolve.bind(null, v), t);
-        });
+          setTimeout(resolve.bind(null, v), t)
+        })
 
       Promise.prototype.delay = function (t) {
         return this.then(function (v) {
-          return delay(t, v);
-        });
-      };
+          return delay(t, v)
+        })
+      }
     }
 
     // persistence
     // initialize cache
     initCache() {
-      if (isQX) this.cache = JSON.parse($prefs.valueForKey(this.name) || '{}');
+      if (isQX) this.cache = JSON.parse($prefs.valueForKey(this.name) || '{}')
       if (isLoon || isSurge)
-        this.cache = JSON.parse($persistentStore.read(this.name) || '{}');
+        this.cache = JSON.parse($persistentStore.read(this.name) || '{}')
 
       if (isNode) {
         // create a json for root cache
-        let fpath = 'root.json';
+        let fpath = 'root.json'
         if (!this.node.fs.existsSync(fpath)) {
           this.node.fs.writeFileSync(
             fpath,
@@ -276,13 +291,13 @@ function API(name = 'untitled', debug = false) {
             {
               flag: 'wx',
             },
-            (err) => console.log(err),
-          );
+            (err) => console.log(err)
+          )
         }
-        this.root = {};
+        this.root = {}
 
         // create a json file with the given name if not exists
-        fpath = `${this.name}.json`;
+        fpath = `${this.name}.json`
         if (!this.node.fs.existsSync(fpath)) {
           this.node.fs.writeFileSync(
             fpath,
@@ -290,22 +305,22 @@ function API(name = 'untitled', debug = false) {
             {
               flag: 'wx',
             },
-            (err) => console.log(err),
-          );
-          this.cache = {};
+            (err) => console.log(err)
+          )
+          this.cache = {}
         } else {
           this.cache = JSON.parse(
-            this.node.fs.readFileSync(`${this.name}.json`),
-          );
+            this.node.fs.readFileSync(`${this.name}.json`)
+          )
         }
       }
     }
 
     // store cache
     persistCache() {
-      const data = JSON.stringify(this.cache, null, 2);
-      if (isQX) $prefs.setValueForKey(data, this.name);
-      if (isLoon || isSurge) $persistentStore.write(data, this.name);
+      const data = JSON.stringify(this.cache, null, 2)
+      if (isQX) $prefs.setValueForKey(data, this.name)
+      if (isLoon || isSurge) $persistentStore.write(data, this.name)
       if (isNode) {
         this.node.fs.writeFileSync(
           `${this.name}.json`,
@@ -313,81 +328,81 @@ function API(name = 'untitled', debug = false) {
           {
             flag: 'w',
           },
-          (err) => console.log(err),
-        );
+          (err) => console.log(err)
+        )
         this.node.fs.writeFileSync(
           'root.json',
           JSON.stringify(this.root, null, 2),
           {
             flag: 'w',
           },
-          (err) => console.log(err),
-        );
+          (err) => console.log(err)
+        )
       }
     }
 
     write(data, key) {
-      this.log(`SET ${key}`);
+      this.log(`SET ${key}`)
       if (key.indexOf('#') !== -1) {
-        key = key.substr(1);
+        key = key.substr(1)
         if (isSurge || isLoon) {
-          return $persistentStore.write(data, key);
+          return $persistentStore.write(data, key)
         }
         if (isQX) {
-          return $prefs.setValueForKey(data, key);
+          return $prefs.setValueForKey(data, key)
         }
         if (isNode) {
-          this.root[key] = data;
+          this.root[key] = data
         }
       } else {
-        this.cache[key] = data;
+        this.cache[key] = data
       }
-      this.persistCache();
+      this.persistCache()
     }
 
     read(key) {
-      this.log(`READ ${key}`);
+      this.log(`READ ${key}`)
       if (key.indexOf('#') !== -1) {
-        key = key.substr(1);
+        key = key.substr(1)
         if (isSurge || isLoon) {
-          return $persistentStore.read(key);
+          return $persistentStore.read(key)
         }
         if (isQX) {
-          return $prefs.valueForKey(key);
+          return $prefs.valueForKey(key)
         }
         if (isNode) {
-          return this.root[key];
+          return this.root[key]
         }
       } else {
-        return this.cache[key];
+        return this.cache[key]
       }
     }
 
     delete(key) {
-      this.log(`DELETE ${key}`);
+      this.log(`DELETE ${key}`)
       if (key.indexOf('#') !== -1) {
-        key = key.substr(1);
+        key = key.substr(1)
         if (isSurge || isLoon) {
-          return $persistentStore.write(null, key);
+          return $persistentStore.write(null, key)
         }
         if (isQX) {
-          return $prefs.removeValueForKey(key);
+          return $prefs.removeValueForKey(key)
         }
         if (isNode) {
-          delete this.root[key];
+          delete this.root[key]
         }
       } else {
-        delete this.cache[key];
+        delete this.cache[key]
       }
-      this.persistCache();
+      this.persistCache()
     }
 
     // notification
     notify(title, subtitle = '', content = '', options = {}) {
-      const openURL = options['open-url'];
-      const mediaURL = options['media-url'];
+      const openURL = options['open-url']
+      const mediaURL = options['media-url']
 
-      if (isQX) $notify(title, subtitle, content, options);
+      if (isQX) $notify(title, subtitle, content, options)
       if (isSurge) {
         $notification.post(
           title,
@@ -395,74 +410,74 @@ function API(name = 'untitled', debug = false) {
           content + `${mediaURL ? '\n多媒体:' + mediaURL : ''}`,
           {
             url: openURL,
-          },
-        );
+          }
+        )
       }
       if (isLoon) {
-        let opts = {};
-        if (openURL) opts['openUrl'] = openURL;
-        if (mediaURL) opts['mediaUrl'] = mediaURL;
+        let opts = {}
+        if (openURL) opts['openUrl'] = openURL
+        if (mediaURL) opts['mediaUrl'] = mediaURL
         if (JSON.stringify(opts) === '{}') {
-          $notification.post(title, subtitle, content);
+          $notification.post(title, subtitle, content)
         } else {
-          $notification.post(title, subtitle, content, opts);
+          $notification.post(title, subtitle, content, opts)
         }
       }
       if (isNode || isScriptable) {
         const content_ =
           content +
           (openURL ? `\n点击跳转: ${openURL}` : '') +
-          (mediaURL ? `\n多媒体: ${mediaURL}` : '');
+          (mediaURL ? `\n多媒体: ${mediaURL}` : '')
         if (isJSBox) {
-          const push = require('push');
+          const push = require('push')
           push.schedule({
             title: title,
             body: (subtitle ? subtitle + '\n' : '') + content_,
-          });
+          })
         } else {
-          console.log(`${title}\n${subtitle}\n${content_}\n\n`);
+          console.log(`${title}\n${subtitle}\n${content_}\n\n`)
         }
       }
     }
 
     // other helper functions
     log(msg) {
-      if (this.debug) console.log(`[${this.name}] LOG: ${this.stringify(msg)}`);
+      if (this.debug) console.log(`[${this.name}] LOG: ${this.stringify(msg)}`)
     }
 
     info(msg) {
-      console.log(`[${this.name}] INFO: ${this.stringify(msg)}`);
+      console.log(`[${this.name}] INFO: ${this.stringify(msg)}`)
     }
 
     error(msg) {
-      console.log(`[${this.name}] ERROR: ${this.stringify(msg)}`);
+      console.log(`[${this.name}] ERROR: ${this.stringify(msg)}`)
     }
 
     wait(millisec) {
-      return new Promise((resolve) => setTimeout(resolve, millisec));
+      return new Promise((resolve) => setTimeout(resolve, millisec))
     }
 
     done(value = {}) {
       if (isQX || isLoon || isSurge) {
-        $done(value);
+        $done(value)
       } else if (isNode && !isJSBox) {
         if (typeof $context !== 'undefined') {
-          $context.headers = value.headers;
-          $context.statusCode = value.statusCode;
-          $context.body = value.body;
+          $context.headers = value.headers
+          $context.statusCode = value.statusCode
+          $context.body = value.body
         }
       }
     }
 
     stringify(obj_or_str) {
       if (typeof obj_or_str === 'string' || obj_or_str instanceof String)
-        return obj_or_str;
+        return obj_or_str
       else
         try {
-          return JSON.stringify(obj_or_str, null, 2);
+          return JSON.stringify(obj_or_str, null, 2)
         } catch (err) {
-          return '[object Object]';
+          return '[object Object]'
         }
     }
-  })(name, debug);
+  })(name, debug)
 }
