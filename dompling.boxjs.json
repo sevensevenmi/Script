@@ -22,15 +22,6 @@
       "author": "@dompling",
       "settings": [
         {
-          "id": "@xmSports.token",
-          "name": "token 列表",
-          "val": null,
-          "type": "textarea",
-          "rows": 4,
-          "placeholder": "请使用抓包，若自己知道可以自行填写",
-          "desc": "必填"
-        },
-        {
           "id": "@xmSports.minStep",
           "name": "最小步数",
           "val": "20000",
