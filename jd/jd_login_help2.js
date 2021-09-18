@@ -67,16 +67,16 @@ function initBoxJSData() {
   const keyword = ($.read(searchKey) || '').split(',');
   cookiesRemark = cookiesRemark.filter((item, index) => {
     return keyword[0]
-      ? keyword.indexOf(`${index}`) > -1 ||
-      keyword.indexOf(item.username) > -1 ||
-      keyword.indexOf(item.nickname) > -1 ||
-      keyword.indexOf(item.status) > -1
-      : true;
+        ? keyword.indexOf(`${index}`) > -1 ||
+        keyword.indexOf(item.username) > -1 ||
+        keyword.indexOf(item.nickname) > -1 ||
+        keyword.indexOf(item.status) > -1
+        : true;
   });
 
   cookiesRemark = cookiesRemark.map(
-    (item) => ({...item, ...cookiesFormat[item.username]})).filter(
-    (item) => !!item.cookie);
+      (item) => ({...item, ...cookiesFormat[item.username]})).filter(
+      (item) => !!item.cookie);
 
   return cookiesRemark;
 }
@@ -360,7 +360,7 @@ function createStyle() {
   .ant-tag-magenta{
     color: #adc6ff !important;
   }
-
+  
   .cus_input {
     border: none;
     background: none;
@@ -407,11 +407,11 @@ const accounts = cookiesRemark.map((item) => {
   const tag = item.wskey ? 'APP' : 'WEB';
   return `
 <div class="cus-avatar" data-value="${item.mobile}" data-name="${
-    item.username
+      item.username
   }">
   <div class="avatar_img" style="background-image: url(${
-    item.avatar ||
-    '//img11.360buyimg.com/jdphoto/s120x120_jfs/t21160/90/706848746/2813/d1060df5/5b163ef9N4a3d7aa6.png'
+      item.avatar ||
+      '//img11.360buyimg.com/jdphoto/s120x120_jfs/t21160/90/706848746/2813/d1060df5/5b163ef9N4a3d7aa6.png'
   });color: #fff"></div>
   <div class="cususer_info">
      <p>${item.nickname}</p>
@@ -425,14 +425,14 @@ const accounts = cookiesRemark.map((item) => {
 // 生成 html 标签
 function createHTML() {
   const fastBtn = isLogin
-    ? `<span class="abtn border-btn" id="fill-input">快速填充</span>`
-    : '<span class="abtn border-btn" id="clear-ck">清空登陆</span>';
+      ? `<span class="abtn border-btn" id="fill-input">快速填充</span>`
+      : '<span class="abtn border-btn" id="clear-ck">清空登陆</span>';
   return `
 <div id="cus-mask" style="visibility:hidden">
   <div class="cus-mask_view">
     <div class="cus-content">
       <div class="cus-view">
-
+        
         <div id="cu_search_input" class="cu_search_input input hidden">
            <input placeholder="请输入昵称" type="text" class="cus_input"/>
            <span id="cu_search_close" class="iconfont icon-close"></span>
@@ -445,9 +445,9 @@ function createHTML() {
       </div>
       <div id="account_list">
           ${
-    !accounts.length
-      ? '<div class="not_content">未找到账号</div>'
-      : accounts
+      !accounts.length
+          ? '<div class="not_content">未找到账号</div>'
+          : accounts
   }
       </div>
     </div>
@@ -481,7 +481,7 @@ function createScript() {
   return `
 <script>
   var pk = getCookie("pt_key");
-  var pp = getCookie("pt_pin");
+  var pp = decodeURIComponent(getCookie("pt_pin"));
   const head = document.getElementsByTagName("head")[0];
   head.insertAdjacentHTML('beforeEnd', '<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" /><link rel="stylesheet" type="text/css" href="//at.alicdn.com/t/font_2100531_qfs93fzyopn.css" charset="utf-8">');
   const jd_ck = ${JSON.stringify(cookiesRemark)};
@@ -501,7 +501,7 @@ function createScript() {
   const cu_search_input = document.querySelector("#cu_search_input");
   const $input = document.querySelector("#cu_search_input input");
   const cus_cancel = document.querySelector("#cus_cancel");
-
+  
   function classFunc(element,str){
     let newClass = element.className.split(" ");
     if(newClass.indexOf(str)>-1){
@@ -511,24 +511,24 @@ function createScript() {
     newClass.push(str);
     return element.className = newClass.join(" ")
   }
-
+  
   cu_search.addEventListener("click",function(){
      classFunc(cu_search, "hidden");
      classFunc(usernameView,"hidden");
      classFunc(cu_search_input, "hidden");
      classFunc(cus_cancel,"hidden");
   })
-
+  
   cus_cancel.addEventListener("click",function(){
     cu_search.click();
     cu_search_close.click();
   })
-
+  
   cu_search_close.addEventListener("click",function(){
     $input.value = "";
     account_list.innerHTML = getAccountList(jd_ck);
   })
-
+  
   function getAccountList(cks){
    return  cks.map((item) => {
   const status = item.status === '正常';
@@ -549,21 +549,21 @@ function createScript() {
 </div>\`;
 }).join('')
   }
-
+  
   let timer = null;
   function inputChange(event){
    const value = event.target.value;
    if(!value) return;
    let newList = [];
    if(timer) clearTimeout(timer);
-   timer = setTimeout(()=>{
+   timer = setTimeout(()=>{ 
      newList = jd_ck.filter(item=>item.username.indexOf(value)>-1 || item.nickname.indexOf(value)>-1)
      if(!newList.length) return;
      account_list.innerHTML = getAccountList(newList);
      registerClick()
     },500);
   }
-
+  
    $input.addEventListener("input",inputChange)
    const avatarItem = jd_ck.find(item=> item.username === pp);
    if(avatarItem && avatarItem.avatar){
@@ -595,7 +595,6 @@ function createScript() {
 
    function animateScroll(key) {
       account_list.scrollTo({top: 52 * key});
-      console.log(account_list.scrollTop);
    }
 
    var preCK = document.getElementById("preCK");
@@ -643,7 +642,7 @@ function createScript() {
         }
       })
     }
-
+    
     registerClick();
 
     boxjs_btn.addEventListener('click', function(){
@@ -784,13 +783,13 @@ const infuseHTML = createHTML();
 
 function getInfuse() {
   return isJS
-    ? `
+      ? `
 const bodyELem = document.body;
 bodyELem.insertAdjacentHTML('beforeEnd', \`${infuseStyles}\`);
 bodyELem.insertAdjacentHTML('beforeEnd', \`${infuseHTML}\`);
 ${infuseScript.replace('<script>', '').replace('</script>', '')}
 `
-    : `
+      : `
 ${infuseStyles}
 ${infuseHTML}
 ${infuseScript}
@@ -800,8 +799,8 @@ ${infuseScript}
 const infuseText = getInfuse();
 try {
   $.html = isJS
-    ? $.html + `\n${infuseText}`
-    : $.html.replace(/(<\/html>)/, `${infuseText} </html>`);
+      ? $.html + `\n${infuseText}`
+      : $.html.replace(/(<\/html>)/, `${infuseText} </html>`);
 } catch (e) {
   console.log(e);
 }
@@ -833,15 +832,15 @@ function HTTP(defaultOptions = {baseURL: ''}) {
   const {isQX, isLoon, isSurge, isScriptable, isNode} = ENV();
   const methods = ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', 'PATCH'];
   const URL_REGEX =
-    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
+      /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
 
   function send(method, options) {
     options =
-      typeof options === 'string'
-        ? {
-          url: options,
-        }
-        : options;
+        typeof options === 'string'
+            ? {
+              url: options,
+            }
+            : options;
     const baseURL = defaultOptions.baseURL;
     if (baseURL && !URL_REGEX.test(options.url || '')) {
       options.url = baseURL ? baseURL + options.url : options.url;
@@ -902,30 +901,30 @@ function HTTP(defaultOptions = {baseURL: ''}) {
 
     let timeoutid;
     const timer = timeout
-      ? new Promise((_, reject) => {
-        timeoutid = setTimeout(() => {
-          events.onTimeout();
-          return reject(
-            `${method} URL: ${options.url} exceeds the timeout ${timeout} ms`,
-          );
-        }, timeout);
-      })
-      : null;
+        ? new Promise((_, reject) => {
+          timeoutid = setTimeout(() => {
+            events.onTimeout();
+            return reject(
+                `${method} URL: ${options.url} exceeds the timeout ${timeout} ms`,
+            );
+          }, timeout);
+        })
+        : null;
 
     return (
-      timer
-        ? Promise.race([timer, worker]).then((res) => {
-          clearTimeout(timeoutid);
-          return res;
-        })
-        : worker
+        timer
+            ? Promise.race([timer, worker]).then((res) => {
+              clearTimeout(timeoutid);
+              return res;
+            })
+            : worker
     ).then((resp) => events.onResponse(resp));
   }
 
   const http = {};
   methods.forEach(
-    (method) =>
-      (http[method.toLowerCase()] = (options) => send(method, options)),
+      (method) =>
+          (http[method.toLowerCase()] = (options) => send(method, options)),
   );
   return http;
 }
@@ -954,9 +953,9 @@ function API(name = 'untitled', debug = false) {
       this.initCache();
 
       const delay = (t, v) =>
-        new Promise(function(resolve) {
-          setTimeout(resolve.bind(null, v), t);
-        });
+          new Promise(function(resolve) {
+            setTimeout(resolve.bind(null, v), t);
+          });
 
       Promise.prototype.delay = function(t) {
         return this.then(function(v) {
@@ -977,12 +976,12 @@ function API(name = 'untitled', debug = false) {
         let fpath = 'root.json';
         if (!this.node.fs.existsSync(fpath)) {
           this.node.fs.writeFileSync(
-            fpath,
-            JSON.stringify({}),
-            {
-              flag: 'wx',
-            },
-            (err) => console.log(err),
+              fpath,
+              JSON.stringify({}),
+              {
+                flag: 'wx',
+              },
+              (err) => console.log(err),
           );
         }
         this.root = {};
@@ -991,17 +990,17 @@ function API(name = 'untitled', debug = false) {
         fpath = `${this.name}.json`;
         if (!this.node.fs.existsSync(fpath)) {
           this.node.fs.writeFileSync(
-            fpath,
-            JSON.stringify({}),
-            {
-              flag: 'wx',
-            },
-            (err) => console.log(err),
+              fpath,
+              JSON.stringify({}),
+              {
+                flag: 'wx',
+              },
+              (err) => console.log(err),
           );
           this.cache = {};
         } else {
           this.cache = JSON.parse(
-            this.node.fs.readFileSync(`${this.name}.json`),
+              this.node.fs.readFileSync(`${this.name}.json`),
           );
         }
       }
@@ -1014,20 +1013,20 @@ function API(name = 'untitled', debug = false) {
       if (isLoon || isSurge) $persistentStore.write(data, this.name);
       if (isNode) {
         this.node.fs.writeFileSync(
-          `${this.name}.json`,
-          data,
-          {
-            flag: 'w',
-          },
-          (err) => console.log(err),
+            `${this.name}.json`,
+            data,
+            {
+              flag: 'w',
+            },
+            (err) => console.log(err),
         );
         this.node.fs.writeFileSync(
-          'root.json',
-          JSON.stringify(this.root, null, 2),
-          {
-            flag: 'w',
-          },
-          (err) => console.log(err),
+            'root.json',
+            JSON.stringify(this.root, null, 2),
+            {
+              flag: 'w',
+            },
+            (err) => console.log(err),
         );
       }
     }
@@ -1096,12 +1095,12 @@ function API(name = 'untitled', debug = false) {
       if (isQX) $notify(title, subtitle, content, options);
       if (isSurge) {
         $notification.post(
-          title,
-          subtitle,
-          content + `${mediaURL ? '\n多媒体:' + mediaURL : ''}`,
-          {
-            url: openURL,
-          },
+            title,
+            subtitle,
+            content + `${mediaURL ? '\n多媒体:' + mediaURL : ''}`,
+            {
+              url: openURL,
+            },
         );
       }
       if (isLoon) {
@@ -1116,9 +1115,9 @@ function API(name = 'untitled', debug = false) {
       }
       if (isNode || isScriptable) {
         const content_ =
-          content +
-          (openURL ? `\n点击跳转: ${openURL}` : '') +
-          (mediaURL ? `\n多媒体: ${mediaURL}` : '');
+            content +
+            (openURL ? `\n点击跳转: ${openURL}` : '') +
+            (mediaURL ? `\n多媒体: ${mediaURL}` : '');
         if (isJSBox) {
           const push = require('push');
           push.schedule({
