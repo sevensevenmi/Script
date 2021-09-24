@@ -822,7 +822,7 @@ async function searchCoupon(skuId, defaultBody = false) {
   if (res.code === 200) {
     return res.data;
   }
-  return false;
+  return {};
 }
 
 async function getJFLink() {
@@ -843,7 +843,7 @@ async function getJFLink() {
     try {
       coupon = coupon['skuPage']['result'][0];
     } catch (e) {
-      coupon = false;
+      coupon = {};
     }
     let couponUrl = '';
     if (coupon && coupon.hasCoupon === 1) {
@@ -870,7 +870,7 @@ async function getJFLink() {
   let jfScript = ``;
   if ($.url.indexOf('item.m.jd.com') > -1) {
     const goodsInfo = await getJFLink();
-    const gInfo = JSON.stringify(goodsInfo);
+    console.log(goodsInfo);
     jfScript = `
 <Script>
 window.onload=()=> {
@@ -881,14 +881,15 @@ window.onload=()=> {
  <img src="https://is5-ssl.mzstatic.com/image/thumb/Purple125/v4/eb/a8/f6/eba8f63a-b550-4586-b5d3-f22c0718ef81/source/100x100bb.jpg" />
 </div>
 </div>\`)
-  
+    
       $("#jf_mask").on("click",function() {
         $("#jf_mask").css({visibility:"hidden"});
       })
       $("#jf").on("click",function() {
          $("#jf_mask .cus-mask_view").html(\`
          <div class="cus-content" style="padding-bottom:${getRem(0.1)}">
-            <p>价格：${goodsInfo.couponAfterPrice || goodsInfo.price}￥</p>
+            <p>价格：${goodsInfo.coupon.couponAfterPrice ||
+    goodsInfo.couponAfterPrice || goodsInfo.price}￥</p>
             <p>京粉链接：<a href="${goodsInfo.promotionUrl}" style="color: red">${goodsInfo.promotionUrl}</a></p>
            ${goodsInfo.couponUrl
         ? `<p>优惠券：<a href="${goodsInfo.couponUrl}" style="color: red">${goodsInfo.couponUrl}</a></p>`
