@@ -102,6 +102,13 @@ function createStyle() {
     z-index: 999;
     transform: translateY(-50%);
   }
+  .tool_bar_jf{
+    position: fixed;
+    top: 80%;
+    right: 0;
+    z-index: 999;
+    transform: translateY(-50%);
+  }
   .tool_bar{
     display: flex;
     height:33px;
@@ -129,7 +136,7 @@ function createStyle() {
     display: block;
     font-size: ${getRem(0.25)};
   }
-  #cus-mask{
+  .cus-mask{
     position: fixed;
     top: 0;
     left: 0;
@@ -428,7 +435,7 @@ function createHTML() {
       ? `<span class="abtn border-btn" id="fill-input">快速填充</span>`
       : '<span class="abtn border-btn" id="clear-ck">清空登陆</span>';
   return `
-<div id="cus-mask" style="visibility:hidden">
+<div id="cus-mask" class="cus-mask" style="visibility:hidden">
   <div class="cus-mask_view">
     <div class="cus-content">
       <div class="cus-view">
@@ -467,6 +474,11 @@ function createHTML() {
     </div>
   </div>
 </div>
+<div class="cus-mask" id="jf_mask" style="visibility:hidden">
+    <div class="cus-mask_view">
+    
+    </div>
+</div>
 <div id="cus-tip" style="display: none;"></div>
 <div class="tool_bars" id="tool-bars">
   <div id="boxjs" class="tool_bar">
@@ -479,11 +491,13 @@ function createHTML() {
 // 生成脚本标签
 function createScript() {
   return `
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>  
 <script>
   var pk = getCookie("pt_key");
   var pp = decodeURIComponent(getCookie("pt_pin"));
   const head = document.getElementsByTagName("head")[0];
-  head.insertAdjacentHTML('beforeEnd', '<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" /><link rel="stylesheet" type="text/css" href="//at.alicdn.com/t/font_2100531_qfs93fzyopn.css" charset="utf-8">');
+  head.insertAdjacentHTML('beforeEnd', '<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" /><link rel="stylesheet" type="text/css" href="//at.alicdn.com/t/font_2100531_qfs93fzyopn.css" charset="utf-8"/>');
+
   const jd_ck = ${JSON.stringify(cookiesRemark)};
   const boxjs_btn = document.querySelector("#boxjs");
   const fill_btn = document.querySelector("#fill-input");
@@ -773,41 +787,155 @@ function createScript() {
     document.body.removeChild(_input);
     toast('复制成功');
   }
+  
 </script>
   `;
 }
 
-const infuseStyles = createStyle();
-const infuseScript = createScript();
-const infuseHTML = createHTML();
+const jf_headers = {
+  'Cookie': 'pt_key=AAJhS-QBADDoErkj14wOrpwdToHcYH7G1D2oWaGHS3fP1kuWpAHSjQgM__8FT7I6pqPEE4DD-Xo;pt_pin=DMpling;',
+  'Accept': '*/*',
+  'Connection': 'keep-alive',
+  'Content-Type': 'application/json',
+  'Host': 'api.m.jd.com',
+  'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.4(0x1800042c) NetType/WIFI Language/zh_CN',
+  'Accept-Encoding': 'gzip, deflate, br',
+  'Accept-Language': 'zh-cn',
+};
 
-function getInfuse() {
-  return isJS
-      ? `
+function getUrl(func, body) {
+  return `https://api.m.jd.com/api?functionId=${func}&appid=u&_=${Date.now()}&body=${encodeURIComponent(
+      JSON.stringify(body),
+  )}&loginType=2`;
+}
+
+async function searchCoupon(skuId, defaultBody = false) {
+  const body = defaultBody || {
+    funName: 'search',
+    version: 'v2',
+    param: {keyWord: skuId},
+  };
+  jf_headers.Referer = 'https://servicewechat.com/wxf463e50cd384beda/125/page-frame.html';
+  const url = getUrl('unionSearch', body);
+  const response = await $.http.post({url, headers: jf_headers});
+  const res = JSON.parse(response.body);
+  if (res.code === 200) {
+    return res.data;
+  }
+  return false;
+}
+
+async function getJFLink() {
+  const body = {
+    'funName': 'getSuperClickUrl',
+    'param': {
+      'materialInfo': $.url,
+      'ext1': '200|100_3|',
+    },
+  };
+  const url = getUrl('ConvertSuperLink', body);
+  jf_headers.Referer = 'https://servicewechat.com/wxf463e50cd384beda/114/page-frame.html';
+  const response = await $.http.post({url, headers: jf_headers});
+  const res = JSON.parse(response.body);
+  if (res.code === 200) {
+    const data = res.data;
+    let coupon = await searchCoupon(data.skuId);
+    try {
+      coupon = coupon['skuPage']['result'][0];
+    } catch (e) {
+      coupon = false;
+    }
+    let couponUrl = '';
+    if (coupon && coupon.hasCoupon === 1) {
+      const couponInfo = await searchCoupon(data.skuId, {
+        'funName': 'getCode',
+        'param': {
+          'skuId': data['skuId'],
+          'appid': 'wxf463e50cd384beda',
+          'subUnionId': '',
+          'couponUrl': coupon['couponUrl'],
+          'requestId': coupon['requestId'],
+          'needDlinkQRurl': 1,
+          'ext1': '200|100_21|',
+        },
+      });
+      couponUrl = couponInfo.shortUrl;
+    }
+    return {...data, coupon, couponUrl};
+  }
+  return {};
+}
+
+(async () => {
+  let jfScript = ``;
+  if ($.url.indexOf('item.m.jd.com') > -1) {
+    const goodsInfo = await getJFLink();
+    const gInfo = JSON.stringify(goodsInfo);
+    jfScript = `
+<Script>
+window.onload=()=> {
+  if(${goodsInfo.price}){
+     console.log("=====载入京粉=====")
+     $("body").append(\`<div class='tool_bar_jf' id='tool_bar_jf'> 
+<div id="jf" class="tool_bar" style="background:red">
+ <img src="https://is5-ssl.mzstatic.com/image/thumb/Purple125/v4/eb/a8/f6/eba8f63a-b550-4586-b5d3-f22c0718ef81/source/100x100bb.jpg" />
+</div>
+</div>\`)
+  
+      $("#jf_mask").on("click",function() {
+        $("#jf_mask").css({visibility:"hidden"});
+      })
+      $("#jf").on("click",function() {
+         $("#jf_mask .cus-mask_view").html(\`
+         <div class="cus-content" style="padding-bottom:${getRem(0.1)}">
+            <p>价格：${goodsInfo.couponAfterPrice || goodsInfo.price}￥</p>
+            <p>京粉链接：<a href="${goodsInfo.promotionUrl}" style="color: red">${goodsInfo.promotionUrl}</a></p>
+           ${goodsInfo.couponUrl
+        ? `<p>优惠券：<a href="${goodsInfo.couponUrl}" style="color: red">${goodsInfo.couponUrl}</a></p>`
+        : ''} 
+         </div>
+         \`)
+        $("#jf_mask").css({visibility:"visible"}) 
+      })
+  }
+}    
+</Script>`;
+  }
+
+  const infuseStyles = createStyle();
+  const infuseScript = createScript();
+  const infuseHTML = createHTML();
+
+  function getInfuse() {
+    return isJS
+        ? `
 const bodyELem = document.body;
 bodyELem.insertAdjacentHTML('beforeEnd', \`${infuseStyles}\`);
 bodyELem.insertAdjacentHTML('beforeEnd', \`${infuseHTML}\`);
 ${infuseScript.replace('<script>', '').replace('</script>', '')}
 `
-      : `
+        : `
 ${infuseStyles}
 ${infuseHTML}
 ${infuseScript}
+${jfScript}
 `;
-}
+  }
 
-const infuseText = getInfuse();
-try {
-  $.html = isJS
-      ? $.html + `\n${infuseText}`
-      : $.html.replace(/(<\/html>)/, `${infuseText} </html>`);
-} catch (e) {
-  console.log(e);
-}
-
-$.headers = {...$.headers, 'Cache-Control': 'no-cache'};
-
-$.done({body: $.html, headers: $.headers});
+  const infuseText = getInfuse();
+  try {
+    $.html = isJS
+        ? $.html + `\n${infuseText}`
+        : $.html.replace(/(<\/html>)/, `${infuseText} </html>`);
+  } catch (e) {
+    console.log(e);
+  }
+})().catch((error) => {
+  console.log(error);
+}).finally(() => {
+  $.headers = {...$.headers, 'Cache-Control': 'no-cache'};
+  $.done({body: $.html, headers: $.headers});
+});
 
 function ENV() {
   const isQX = typeof $task !== 'undefined';
