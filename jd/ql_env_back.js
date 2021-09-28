@@ -6,28 +6,19 @@
 const $ = new API('ql', true);
 
 const title = '🐉 通知提示';
-const ipAddress = $.read('ip') || '';
-const baseURL = `http://${ipAddress}`;
-const urlStr = 'envs';
 
-let token = '';
-const headers = {
-  'Content-Type': `application/json;charset=UTF-8`,
-};
-const account = {
-  password: $.read('password'),
-  username: $.read('username'),
-};
-
-$.log(`登陆：${ipAddress}`);
-$.log(`账号：${account.username}`);
+async function getScriptUrl() {
+  const response = await $.http.get({
+    url: 'https://raw.githubusercontent.com/dompling/Script/master/jd/ql_api.js',
+  });
+  return response.body;
+}
 
 (async () => {
-  const loginRes = await login();
-  if (loginRes.code === 400) return $.notify(title, '', loginRes.msg);
-  token = loginRes.data.token;
-  headers.Authorization = `Bearer ${token}`;
-  const envs = await getEnvs();
+  const ql_script = (await getScriptUrl()) || '';
+  eval(ql_script);
+  await $.ql.login();
+  const envs = await $.ql.select('');
   $.write(JSON.stringify(envs.data), 'env');
   if ($.read('mute') !== 'true') {
     return $.notify(
@@ -43,24 +34,6 @@ $.log(`账号：${account.username}`);
   .finally(() => {
     $.done();
   });
-
-function getURL(api, key = 'api') {
-  return `${baseURL}/${key}/${api}`;
-}
-
-function login() {
-  const opt = {
-    headers,
-    url: getURL('login'),
-    body: JSON.stringify(account),
-  };
-  return $.http.post(opt).then((response) => JSON.parse(response.body));
-}
-
-function getEnvs(keyword = '') {
-  const opt = { url: getURL(urlStr) + `?searchValue=${keyword}`, headers };
-  return $.http.get(opt).then((response) => JSON.parse(response.body));
-}
 
 function ENV() {
   const isQX = typeof $task !== 'undefined';

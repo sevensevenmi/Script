@@ -6,18 +6,7 @@
 const $ = new API('ql', true);
 
 const title = '🐉 通知提示';
-const ipAddress = $.read('ip') || '';
-const baseURL = `http://${ipAddress}`;
-const urlStr = 'envs';
 
-let token = '';
-const headers = {
-  'Content-Type': `application/json;charset=UTF-8`,
-};
-const account = {
-  password: $.read('password'),
-  username: $.read('username'),
-};
 const jd_cookies = JSON.parse($.read('#CookiesJD') || '[]');
 
 let remark = {};
@@ -38,18 +27,23 @@ function getUsername(ck) {
   return decodeURIComponent(ck.match(/pt_pin=(.+?);/)[1]);
 }
 
-$.log(`登陆：${ipAddress}`);
-$.log(`账号：${account.username}`);
+async function getScriptUrl() {
+  const response = await $.http.get({
+    url: 'https://raw.githubusercontent.com/dompling/Script/master/jd/ql_api.js',
+  });
+  return response.body;
+}
+
 (async () => {
-  const loginRes = await login();
-  if (loginRes.code === 400) return $.notify(title, '', loginRes.msg);
-  token = loginRes.data.token;
-  headers.Authorization = `Bearer ${token}`;
-  const cookiesRes = await getCookies();
+  const ql_script = (await getScriptUrl()) || '';
+  eval(ql_script);
+  await $.ql.login();
+
+  const cookiesRes = await $.ql.select();
   const ids = cookiesRes.data.map((item) => item._id);
-  await delCookie(ids);
-  const wskeyRes = await getCookies('JD_WSCK');
-  await delCookie(wskeyRes.data.map((item) => item._id));
+  await $.ql.delete(ids);
+  const wskeyRes = await $.ql.select('JD_WSCK');
+  await $.ql.delete(wskeyRes.data.map((item) => item._id));
   $.log('清空 cookie 和 wskey');
 
   const addData = [];
@@ -75,10 +69,10 @@ $.log(`账号：${account.username}`);
       });
     }
   }
-  if (addData.length) await addCookies(addData);
-  if (wsCookie.length) await addCookies(wsCookie);
+  if (addData.length) await $.ql.add(addData);
+  if (wsCookie.length) await $.ql.add(wsCookie);
 
-  const _cookiesRes = await getCookies();
+  const _cookiesRes = await $.ql.select();
   const _ids = [];
   for (let index = 0; index < _cookiesRes.data.length; index++) {
     const item = _cookiesRes.data[index];
@@ -93,7 +87,7 @@ $.log(`账号：${account.username}`);
         .map((item) => item.remarks || getUsername(item.value))
         .join(`\n`)}`,
     );
-    await disabled(ids);
+    await $.ql.disabled(ids);
   }
 
   const cookieText = jd_cookies.map((item) => item.userName).join(`\n`);
