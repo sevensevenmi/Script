@@ -20,7 +20,7 @@ function getUsername(ck) {
   return decodeURIComponent(ck.match(/pt_pin=(.+?);/)[1]);
 }
 
-async function getScriptUrl(uri) {
+async function getScriptUrl() {
   const response = await $.http.get({
     url: 'https://raw.githubusercontent.com/dompling/Script/master/jd/ql_api.js',
   });
