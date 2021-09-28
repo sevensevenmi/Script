@@ -343,7 +343,8 @@
         "@ql.username",
         "@ql.password",
         "@ql.env",
-        "@ql.mute"
+        "@ql.mute",
+        "@ql.is_pwd"
       ],
       "settings": [
         {
@@ -352,6 +353,13 @@
           "val": false,
           "type": "boolean",
           "desc": "同步时，不会执行通知提示"
+        },
+        {
+          "id": "@ql.is_pwd",
+          "name": "开启密码登陆",
+          "val": false,
+          "type": "boolean",
+          "desc": "同步时，优先使用密码登陆"
         },
         {
           "id": "@ql.ip",
