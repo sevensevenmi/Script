@@ -63,12 +63,16 @@ if ($.ql_account.username && $.ql_account.password) {
     const options = {
       url: `http://${$.ql_url}/api/login`,
       body: JSON.stringify($.ql_account),
+      headers: {
+        'Content-Type': `application/json;charset=UTF-8`,
+      },
     };
-    $.log(options);
     let response = await $.http.post(options);
     response = JSON.parse(response.body);
     if (response.code === 200) {
-      $.ql.headers.Authorization = `Bearer ${token}`;
+      $.ql.headers.Authorization = `Bearer ${response.data.token}`;
+      $.log(`登陆成功：${response.data.lastaddr}`);
+      $.log(`ip:${response.data.lastip}`);
     } else {
       $.log(response);
       $.log(`登陆失败：${response.message}`);
@@ -79,9 +83,13 @@ if ($.ql_account.username && $.ql_account.password) {
   $.ql.login = async () => {
     const options = {
       url: `http://${$.ql_url}/open/auth/token?client_id=${$.application.client_id}&client_secret=${$.application.client_secret}`,
+      headers: {
+        'Content-Type': `application/json;charset=UTF-8`,
+      },
     };
     let response = await $.http.post(options);
     response = JSON.parse(response.body);
+    console.log(response);
   };
 } else {
   $.ql = false;
