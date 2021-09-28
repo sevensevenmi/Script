@@ -1,23 +1,3 @@
-try {
-  $.ql_config = JSON.parse($.read('#ql'));
-} catch (e) {
-  $.ql_config = {};
-}
-
-$.ql_url = $.ql_config.ip;
-
-$.application = {
-  client_id: $.ql_config.client_id,
-  client_secret: $.ql_config.client_secret,
-};
-
-$.ql_account = {
-  username: $.ql_config.username,
-  password: $.ql_config.password,
-};
-
-$.log(`地址：${$.ql_url}`);
-
 $.ql = {
   type: 'api',
   headers: {
@@ -79,43 +59,73 @@ $.ql = {
   },
 };
 
-if ($.application.client_id && $.application.client_secret) {
-  $.ql.login = async () => {
-    const options = {
-      url: `http://${$.ql_url}/open/auth/token?client_id=${$.application.client_id}&client_secret=${$.application.client_secret}`,
-      headers: {
-        'Content-Type': `application/json;charset=UTF-8`,
-      },
-    };
-    let response = await $.http.post(options);
-    response = JSON.parse(response.body);
-    $.ql.type = 'open';
-    console.log(response);
-  };
-} else if ($.ql_account.username && $.ql_account.password) {
-  $.ql.login = async () => {
-    const options = {
-      url: `http://${$.ql_url}/api/login`,
-      body: JSON.stringify($.ql_account),
-      headers: {
-        'Content-Type': `application/json;charset=UTF-8`,
-      },
-    };
-    let response = await $.http.post(options);
-    response = JSON.parse(response.body);
-    if (response.code === 200) {
-      $.ql.type = 'api';
-      $.ql.headers.Authorization = `Bearer ${response.data.token}`;
-      $.log(`登陆成功：${response.data.lastaddr}`);
-      $.log(`ip:${response.data.lastip}`);
-    } else {
-      $.log(response);
-      $.log(`登陆失败：${response.message}`);
-      throw new Error(`登陆失败：${response.message}`);
-    }
-  };
-} else {
+try {
+  $.ql_config = JSON.parse($.read('#ql'));
+} catch (e) {
+  $.ql_config = {};
+}
+
+$.ql_url = $.ql_config.ip;
+
+$.application = {
+  client_id: $.ql_config.client_id,
+  client_secret: $.ql_config.client_secret,
+};
+
+$.ql_account = {
+  username: $.ql_config.username,
+  password: $.ql_config.password,
+};
+
+$.log(`地址：${$.ql_url}`);
+
+function noReady() {
   $.ql = false;
   $.log('请配置好相关信息');
   throw new Error('请配置好相关信息');
+}
+
+if ($.ql_config.is_pwd === 'true') {
+  if ($.ql_account.username && $.ql_account.password) {
+    $.ql.login = async () => {
+      const options = {
+        url: `http://${$.ql_url}/api/login`,
+        body: JSON.stringify($.ql_account),
+        headers: {
+          'Content-Type': `application/json;charset=UTF-8`,
+        },
+      };
+      let response = await $.http.post(options);
+      response = JSON.parse(response.body);
+      if (response.code === 200) {
+        $.ql.type = 'api';
+        $.ql.headers.Authorization = `Bearer ${response.data.token}`;
+        $.log(`登陆成功：${response.data.lastaddr}`);
+        $.log(`ip:${response.data.lastip}`);
+      } else {
+        $.log(response);
+        $.log(`登陆失败：${response.message}`);
+        throw new Error(`登陆失败：${response.message}`);
+      }
+    };
+  } else {
+    noReady();
+  }
+} else {
+  if ($.application.client_id && $.application.client_secret) {
+    $.ql.login = async () => {
+      const options = {
+        url: `http://${$.ql_url}/open/auth/token?client_id=${$.application.client_id}&client_secret=${$.application.client_secret}`,
+        headers: {
+          'Content-Type': `application/json;charset=UTF-8`,
+        },
+      };
+      let response = await $.http.post(options);
+      response = JSON.parse(response.body);
+      $.ql.type = 'open';
+      console.log(response);
+    };
+  } else {
+    noReady();
+  }
 }
