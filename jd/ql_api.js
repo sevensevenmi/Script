@@ -1,13 +1,13 @@
 $.ql_url = $.read('ip');
 
 $.application = {
-  client_id: $.read('password'),
+  client_id: $.read('client_id'),
   client_secret: $.read('client_secret'),
 };
 
 $.ql_account = {
-  password: $.read('password'),
   username: $.read('username'),
+  password: $.read('password'),
 };
 
 $.log(`地址：${$.ql_url}`);
@@ -64,16 +64,22 @@ if ($.ql_account.username && $.ql_account.password) {
       url: `http://${$.ql_url}/api/login`,
       body: JSON.stringify($.ql_account),
     };
-    const response = await $.http.post(options);
-    console.log(response);
+    let response = await $.http.post(options);
+    response = JSON.parse(response.body);
+    if (response.code === 200) {
+      $.ql.headers.Authorization = `Bearer ${token}`;
+    } else {
+      $.log(response);
+      $.log(`登陆失败：${response.message}`);
+    }
   };
 } else if ($.application.client_id && $.client_secret) {
   $.ql.login = async () => {
     const options = {
       url: `http://${$.ql_url}/open/auth/token?client_id=${$.application.client_id}&client_secret=${$.application.client_secret}`,
     };
-    const response = await $.http.post(options);
-    console.log(response);
+    let response = await $.http.post(options);
+    response = JSON.parse(response.body);
   };
 } else {
   $.ql = false;
