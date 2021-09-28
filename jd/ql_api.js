@@ -92,8 +92,7 @@ if ($.application.client_id && $.application.client_secret) {
     $.ql.type = 'open';
     console.log(response);
   };
-}
-if ($.ql_account.username && $.ql_account.password) {
+} else if ($.ql_account.username && $.ql_account.password) {
   $.ql.login = async () => {
     const options = {
       url: `http://${$.ql_url}/api/login`,
