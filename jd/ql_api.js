@@ -120,10 +120,17 @@ if ($.ql_config.is_pwd === 'true') {
           'Content-Type': `application/json;charset=UTF-8`,
         },
       };
-      let response = await $.http.post(options);
+      let response = await $.http.get(options);
       response = JSON.parse(response.body);
-      $.ql.type = 'open';
-      console.log(response);
+      if (response.code === 200) {
+        $.ql.type = 'open';
+        $.ql.headers.Authorization = `Bearer ${response.data.token}`;
+        $.log(`登陆成功`);
+      } else {
+        $.log(response);
+        $.log(`登陆失败：${response.message}`);
+        throw new Error(`登陆失败：${response.message}`);
+      }
     };
   } else {
     noReady();
