@@ -4,7 +4,7 @@ try {
   $.ql_config = {};
 }
 
-$.ql_url = $.ql_config.url;
+$.ql_url = $.ql_config.ip;
 
 $.application = {
   client_id: $.ql_config.client_id,
