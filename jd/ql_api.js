@@ -19,6 +19,7 @@ $.ql_account = {
 $.log(`地址：${$.ql_url}`);
 
 $.ql = {
+  type: 'api',
   headers: {
     'Content-Type': `application/json;charset=UTF-8`,
     Authorization: '',
@@ -26,7 +27,7 @@ $.ql = {
   disabled(ids) {
     if (!this.headers.Authorization) return;
     const opt = {
-      url: `http://${$.ql_url}/api/envs/disable`,
+      url: `http://${$.ql_url}/${this.type}/envs/disable`,
       headers: this.headers,
       body: JSON.stringify(ids),
     };
@@ -35,7 +36,7 @@ $.ql = {
   enabled(ids) {
     if (!this.headers.Authorization) return;
     const opt = {
-      url: `http://${$.ql_url}/api/envs/enable`,
+      url: `http://${$.ql_url}/${this.type}/envs/enable`,
       headers: this.headers,
       body: JSON.stringify(ids),
     };
@@ -44,7 +45,7 @@ $.ql = {
   delete(ids) {
     if (!this.headers.Authorization) return;
     const opt = {
-      url: `http://${$.ql_url}/api/envs`,
+      url: `http://${$.ql_url}/${this.type}/envs`,
       headers: this.headers,
       body: JSON.stringify(ids),
     };
@@ -53,7 +54,7 @@ $.ql = {
   add(records) {
     if (!this.headers.Authorization) return;
     const opt = {
-      url: `http://${$.ql_url}/api/envs`,
+      url: `http://${$.ql_url}/${this.type}/envs`,
       headers: this.headers,
       body: JSON.stringify(records),
     };
@@ -62,7 +63,7 @@ $.ql = {
   edit(records) {
     if (!this.headers.Authorization) return;
     const opt = {
-      url: `http://${$.ql_url}/api/envs`,
+      url: `http://${$.ql_url}/${this.type}/envs`,
       headers: this.headers,
       body: JSON.stringify(records),
     };
@@ -71,7 +72,7 @@ $.ql = {
   select(searchValue = 'JD_COOKIE') {
     if (!this.headers.Authorization) return;
     const opt = {
-      url: `http://${$.ql_url}/api/envs?searchValue=${searchValue}`,
+      url: `http://${$.ql_url}/${this.type}/envs?searchValue=${searchValue}`,
       headers: this.headers,
     };
     return $.http.get(opt).then((response) => JSON.parse(response.body));
@@ -88,9 +89,11 @@ if ($.application.client_id && $.application.client_secret) {
     };
     let response = await $.http.post(options);
     response = JSON.parse(response.body);
+    $.ql.type = 'open';
     console.log(response);
   };
-} else if ($.ql_account.username && $.ql_account.password) {
+}
+if ($.ql_account.username && $.ql_account.password) {
   $.ql.login = async () => {
     const options = {
       url: `http://${$.ql_url}/api/login`,
@@ -102,6 +105,7 @@ if ($.application.client_id && $.application.client_secret) {
     let response = await $.http.post(options);
     response = JSON.parse(response.body);
     if (response.code === 200) {
+      $.ql.type = 'api';
       $.ql.headers.Authorization = `Bearer ${response.data.token}`;
       $.log(`登陆成功：${response.data.lastaddr}`);
       $.log(`ip:${response.data.lastip}`);
