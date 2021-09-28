@@ -25,6 +25,14 @@ $.ql = {
     };
     return $.http.put(opt).then((response) => JSON.parse(response.body));
   },
+  enabled(ids) {
+    const opt = {
+      url: `http://${$.ql_url}/api/envs/enable`,
+      headers: this.headers,
+      body: JSON.stringify(ids),
+    };
+    return this.$.http.put(opt).then((response) => JSON.parse(response.body));
+  },
   delete(ids) {
     const opt = {
       url: `http://${$.ql_url}/api/envs`,
