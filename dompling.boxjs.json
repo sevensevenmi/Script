@@ -336,7 +336,15 @@
     {
       "id": "ql",
       "name": "青龙同步",
-      "keys": ["@ql.ip", "@ql.username", "@ql.password", "@ql.env", "@ql.mute"],
+      "keys": [
+        "@ql.ip",
+        "@ql.client_id",
+        "@ql.client_secret",
+        "@ql.username",
+        "@ql.password",
+        "@ql.env",
+        "@ql.mute"
+      ],
       "settings": [
         {
           "id": "@ql.mute",
@@ -351,6 +359,18 @@
           "val": "",
           "type": "text",
           "placeholder": "111.21.0.32:5700"
+        },
+        {
+          "id": "@ql.client_id",
+          "name": "应用 Client ID",
+          "val": "",
+          "type": "text"
+        },
+        {
+          "id": "@ql.client_secret",
+          "name": "应用 Client Secret",
+          "val": "",
+          "type": "text"
         },
         {
           "id": "@ql.username",
@@ -392,7 +412,8 @@
       "descs_html": [
         "青龙 docker 的安装方式请移步 tg 频道",
         "青龙 docker 作者仓库：【<a href=\"https://github.com/whyour\">github</a>】",
-        "青龙 docker 频道：【<a href=\"https://t.me/qiongqiya\">电报频道</a>】"
+        "青龙 docker 频道：【<a href=\"https://t.me/qiongqiya\">电报频道</a>】",
+        "应用client_id,client_secret（openapi）方式；请去 设置->应用 中添加相关参数，优先以 openapi 方式同步"
       ]
     },
     {
