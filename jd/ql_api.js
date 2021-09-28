@@ -64,6 +64,7 @@ if ($.ql_account.username && $.ql_account.password) {
       url: `http://${$.ql_url}/api/login`,
       body: JSON.stringify($.ql_account),
     };
+    $.log(options);
     let response = await $.http.post(options);
     response = JSON.parse(response.body);
     if (response.code === 200) {
