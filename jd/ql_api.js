@@ -49,7 +49,7 @@ $.ql = {
     };
     return $.http.post(opt).then((response) => JSON.parse(response.body));
   },
-  edit() {
+  edit(records) {
     const opt = {
       url: `http://${$.ql_url}/api/envs`,
       headers: this.headers,
