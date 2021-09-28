@@ -1,4 +1,8 @@
-$.ql_config = $.read('#ql');
+try {
+  $.ql_config = JSON.parse($.read('#ql'));
+} catch (e) {
+  $.ql_config = {};
+}
 
 $.ql_url = $.ql_config.url;
 
