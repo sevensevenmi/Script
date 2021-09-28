@@ -51,7 +51,6 @@ try {
 
 function getUsername(ck) {
   if (!ck) return '';
-  console.log(ck);
   return decodeURIComponent(ck.match(/pt_pin=(.+?);/)[1]);
 }
 
@@ -67,12 +66,13 @@ $.mute = $.read(mute);
 (async () => {
   const ql_script = (await getScriptUrl()) || '';
   eval(ql_script);
+
   if ($.ql) {
-    $.ql.asyncWSCoookie = async (cookieValue) => {
+    $.ql.asyncCookie = async (cookieValue, name = 'JD_WSCK') => {
       try {
         await $.ql.login();
-        console.log(`青龙wskey登陆同步`);
-        let qlCk = await $.ql.select('JD_WSCK');
+        console.log(`青龙${name}登陆同步`);
+        let qlCk = await $.ql.select(name);
         if (!qlCk.data) return;
         qlCk = qlCk.data;
         const DecodeName = getUsername(cookieValue);
@@ -83,77 +83,39 @@ $.mute = $.read(mute);
           console.log('该账号无需更新');
           return;
         }
-        let nickName = '';
-        const remarks = remark.find((item) => item.username === DecodeName);
-        if (remarks && remarks.nickname) nickName = remarks.nickname;
-        let response;
-        if (current) {
-          current.value = cookieValue;
-          response = await $.ql.edit({
-            name: 'JD_WSCK',
-            remarks: current.remarks || nickName,
-            value: cookieValue,
-            _id: current._id,
-          });
-          response = await $.ql.enabled([current._id]);
-        } else {
-          response = await $.ql.add([
-            { name: 'JD_WSCK', value: cookieValue, remarks: nickName },
-          ]);
-        }
-        console.log(JSON.stringify(response));
-        if ($.mute === 'true' && response.code === 200) {
-          return console.log(
-            '用户名: ' + DecodeName + '同步wskey更新青龙成功🎉',
-          );
-        } else if (response.code === 200) {
-          $.notify('用户名: ' + DecodeName, '', '同步wskey更新青龙成功🎉');
-        } else {
-          console.log('青龙同步失败');
-        }
-      } catch (e) {
-        console.log(e);
-      }
-    };
 
-    $.ql.asyncCoookie = async function (cookieValue) {
-      try {
-        await $.ql.login();
-        console.log(`青龙cookie登陆同步`);
-        let qlCk = await $.ql.select('JD_COOKIE');
-        if (!qlCk.data) return;
-        qlCk = qlCk.data;
-        const DecodeName = getUsername(cookieValue);
-        const current = qlCk.find(
-          (item) => getUsername(item.value) === DecodeName,
-        );
-        if (current && current.value === cookieValue) {
-          console.log('该账号无需更新');
-          return;
+        let remarks = '';
+        remarks = remark.find((item) => item.username === DecodeName);
+        if (remarks) {
+          remarks =
+            name === 'JD_WSCK'
+              ? remarks.nickname
+              : `${remarks.nickname}&${remarks.remark}&${remarks.qywxUserId}`;
         }
         let response;
         if (current) {
           current.value = cookieValue;
           response = await $.ql.edit({
-            name: 'JD_COOKIE',
-            remarks: current.remarks,
+            name,
+            remarks: current.remarks || remarks,
             value: cookieValue,
             _id: current._id,
           });
-          response = await $.ql.enabled([current._id]);
+          if (response.data.status === '1') {
+            response = await $.ql.enabled([current._id]);
+          }
         } else {
           response = await $.ql.add([
-            { name: 'JD_COOKIE', value: cookieValue },
+            { name: name, value: cookieValue, remarks: remarks },
           ]);
         }
-
         console.log(JSON.stringify(response));
         if ($.mute === 'true' && response.code === 200) {
           return console.log(
-            '用户名: ' + DecodeName + '同步Cookie更新青龙成功🎉',
+            '用户名: ' + DecodeName + `同步${name}更新青龙成功🎉`,
           );
         } else if (response.code === 200) {
-          $.notify('用户名: ' + DecodeName, '', '同步Cookie更新青龙成功🎉');
+          $.notify('用户名: ' + DecodeName, '', `同步${name}更新青龙成功🎉`);
         } else {
           console.log('青龙同步失败');
         }
@@ -229,7 +191,7 @@ async function GetCookie() {
       const cacheValue = JSON.stringify(updateCookiesData, null, `\t`);
       $.write(cacheValue, CacheKey);
       updateJDHelp(DecodeName);
-      if ($.ql) await $.ql.asyncCoookie(CookieValue);
+      if ($.ql) await $.ql.asyncCookie(CookieValue, 'JD_COOKIE');
 
       if ($.mute === 'true') {
         return console.log(
@@ -269,7 +231,7 @@ async function GetCookie() {
           `本地 wskey 一致无需更新，若需更新面板，请到 boxjs 同步`,
         );
       }
-      if ($.ql) await $.ql.asyncWSCoookie(code);
+      if ($.ql) await $.ql.asyncCookie(code);
       CookiesData[updateIndex].wskey = wskey;
       const cacheValue = JSON.stringify(CookiesData, null, `\t`);
       $.write(cacheValue, CacheKey);
