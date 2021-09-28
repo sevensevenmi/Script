@@ -72,6 +72,7 @@ if ($.ql_account.username && $.ql_account.password) {
     } else {
       $.log(response);
       $.log(`登陆失败：${response.message}`);
+      throw new Error(`登陆失败：${response.message}`);
     }
   };
 } else if ($.application.client_id && $.client_secret) {
@@ -85,4 +86,5 @@ if ($.ql_account.username && $.ql_account.password) {
 } else {
   $.ql = false;
   $.log('请配置好相关信息');
+  throw new Error('请配置好相关信息');
 }
