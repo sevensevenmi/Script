@@ -78,7 +78,7 @@ $.ql = {
   },
 };
 
-if ($.application.client_id && $.client_secret) {
+if ($.application.client_id && $.application.client_secret) {
   $.ql.login = async () => {
     const options = {
       url: `http://${$.ql_url}/open/auth/token?client_id=${$.application.client_id}&client_secret=${$.application.client_secret}`,
