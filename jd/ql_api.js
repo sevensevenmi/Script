@@ -10,6 +10,8 @@ $.ql_account = {
   username: $.read('username'),
 };
 
+$.log(`地址：${$.ql_url}`);
+
 $.ql = {
   headers: {
     'Content-Type': `application/json;charset=UTF-8`,
@@ -56,27 +58,24 @@ $.ql = {
   },
 };
 
-if ($.application.client_id && $.client_secret) {
-  $.ql = {
-    login: async () => {
-      const options = {
-        url: `http://${$.ql_url}/open/auth/token?client_id=${$.application.client_id}&client_secret=${$.application.client_secret}`,
-      };
-      const response = await $.http.post(options);
-      console.log(response);
-    },
-  };
-}
-
 if ($.ql_account.username && $.ql_account.password) {
-  $.ql = {
-    login: async () => {
-      const options = {
-        url: `http://${$.ql_url}/api/login`,
-        body: JSON.stringify($.ql_account),
-      };
-      const response = await $.http.post(options);
-      console.log(response);
-    },
+  $.ql.login = async () => {
+    const options = {
+      url: `http://${$.ql_url}/api/login`,
+      body: JSON.stringify($.ql_account),
+    };
+    const response = await $.http.post(options);
+    console.log(response);
   };
+} else if ($.application.client_id && $.client_secret) {
+  $.ql.login = async () => {
+    const options = {
+      url: `http://${$.ql_url}/open/auth/token?client_id=${$.application.client_id}&client_secret=${$.application.client_secret}`,
+    };
+    const response = await $.http.post(options);
+    console.log(response);
+  };
+} else {
+  $.ql = false;
+  $.log('请配置好相关信息');
 }
