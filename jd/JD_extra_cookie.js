@@ -154,8 +154,9 @@ async function GetCookie() {
   const CV = `${$request.headers['Cookie'] || $request.headers['cookie']};`;
 
   if (
-    $request.url.indexOf('GetJDUserInfoUnion') > -1 ||
-    $request.url.indexOf('/log/sdk') > -1
+    ($request.url.indexOf('GetJDUserInfoUnion') > -1 &&
+      $request.url.indexOf('isLogin') === -1) ||
+    $request.url.indexOf('openUpgrade') > -1
   ) {
     if (CV.match(/(pt_key=.+?pt_pin=|pt_pin=.+?pt_key=)/)) {
       const CookieValue = CV.match(/pt_key=.+?;/) + CV.match(/pt_pin=.+?;/);
@@ -247,7 +248,7 @@ async function GetCookie() {
 
 async function TotalBean(Cookie) {
   const opt = {
-    url: 'https://me-api.jd.com/user_new/info/GetJDUserInfoUnion?sceneval=2&sceneval=2&g_login_type=1&g_ty=ls',
+    url: 'https://me-api.jd.com/user_new/info/GetJDUserInfoUnion?sceneval=2&sceneval=2&g_login_type=1&g_ty=ls&isLogin=1',
     headers: {
       cookie: Cookie,
       Referer: 'https://home.m.jd.com/',
