@@ -226,11 +226,11 @@ async function GetCookie() {
 
       if (updateIndex === false) return console.log(`未找到相关账号`);
 
-      if (CookiesData[updateIndex].wskey === wskey) {
-        return console.log(
-          `本地 wskey 一致无需更新，若需更新面板，请到 boxjs 同步`,
-        );
-      }
+      // if (CookiesData[updateIndex].wskey === wskey) {
+      //   return console.log(
+      //     `本地 wskey 一致无需更新，若需更新面板，请到 boxjs 同步`,
+      //   );
+      // }
       if ($.ql) await $.ql.asyncCookie(code);
       CookiesData[updateIndex].wskey = wskey;
       const cacheValue = JSON.stringify(CookiesData, null, `\t`);
