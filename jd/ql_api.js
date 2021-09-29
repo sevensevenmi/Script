@@ -82,7 +82,6 @@ $.log(`地址：${$.ql_url}`);
 function noReady() {
   $.ql = false;
   $.log('请配置好相关信息');
-  throw new Error('请配置好相关信息');
 }
 
 if ($.ql_config.is_pwd === 'true') {
@@ -105,7 +104,6 @@ if ($.ql_config.is_pwd === 'true') {
       } else {
         $.log(response);
         $.log(`登陆失败：${response.message}`);
-        throw new Error(`登陆失败：${response.message}`);
       }
     };
   } else {
@@ -129,7 +127,6 @@ if ($.ql_config.is_pwd === 'true') {
       } else {
         $.log(response);
         $.log(`登陆失败：${response.message}`);
-        throw new Error(`登陆失败：${response.message}`);
       }
     };
   } else {
