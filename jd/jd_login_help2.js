@@ -41,7 +41,7 @@ $.html = $response.body;
 
 const isJS = $.url.match(/^https:\/\/.*\.com\/.*(\.js)/);
 try {
-  if (!$.html.includes || !$.html.includes('</html>')) $.done({body: $.html});
+  if (!$.html.includes || !$.html.includes('</html>')) $.done({ body: $.html });
 } catch (e) {
   $.done();
 }
@@ -67,16 +67,16 @@ function initBoxJSData() {
   const keyword = ($.read(searchKey) || '').split(',');
   cookiesRemark = cookiesRemark.filter((item, index) => {
     return keyword[0]
-        ? keyword.indexOf(`${index}`) > -1 ||
-        keyword.indexOf(item.username) > -1 ||
-        keyword.indexOf(item.nickname) > -1 ||
-        keyword.indexOf(item.status) > -1
-        : true;
+      ? keyword.indexOf(`${index}`) > -1 ||
+          keyword.indexOf(item.username) > -1 ||
+          keyword.indexOf(item.nickname) > -1 ||
+          keyword.indexOf(item.status) > -1
+      : true;
   });
 
-  cookiesRemark = cookiesRemark.map(
-      (item) => ({...item, ...cookiesFormat[item.username]})).filter(
-      (item) => !!item.cookie);
+  cookiesRemark = cookiesRemark
+    .map((item) => ({ ...item, ...cookiesFormat[item.username] }))
+    .filter((item) => !!item.cookie);
 
   return cookiesRemark;
 }
@@ -408,17 +408,18 @@ function createStyle() {
 `;
 }
 
-const accounts = cookiesRemark.map((item) => {
-  const status = item.status === '正常';
-  const className = item.wskey ? 'ant-tag-cyan' : 'ant-tag-magenta';
-  const tag = item.wskey ? 'APP' : 'WEB';
-  return `
+const accounts = cookiesRemark
+  .map((item) => {
+    const status = item.status === '正常';
+    const className = item.wskey ? 'ant-tag-cyan' : 'ant-tag-magenta';
+    const tag = item.wskey ? 'APP' : 'WEB';
+    return `
 <div class="cus-avatar" data-value="${item.mobile}" data-name="${
       item.username
-  }">
+    }">
   <div class="avatar_img" style="background-image: url(${
-      item.avatar ||
-      '//img11.360buyimg.com/jdphoto/s120x120_jfs/t21160/90/706848746/2813/d1060df5/5b163ef9N4a3d7aa6.png'
+    item.avatar ||
+    '//img11.360buyimg.com/jdphoto/s120x120_jfs/t21160/90/706848746/2813/d1060df5/5b163ef9N4a3d7aa6.png'
   });color: #fff"></div>
   <div class="cususer_info">
      <p>${item.nickname}</p>
@@ -427,13 +428,14 @@ const accounts = cookiesRemark.map((item) => {
   <span class="ant-tag ${className}">${tag}</span>
   <span class="cus-icon ${status ? '' : 'cus-err'}"></span>
 </div>`;
-}).join('');
+  })
+  .join('');
 
 // 生成 html 标签
 function createHTML() {
   const fastBtn = isLogin
-      ? `<span class="abtn border-btn" id="fill-input">快速填充</span>`
-      : '<span class="abtn border-btn" id="clear-ck">清空登陆</span>';
+    ? `<span class="abtn border-btn" id="fill-input">快速填充</span>`
+    : '<span class="abtn border-btn" id="clear-ck">清空登陆</span>';
   return `
 <div id="cus-mask" class="cus-mask" style="visibility:hidden">
   <div class="cus-mask_view">
@@ -452,10 +454,10 @@ function createHTML() {
       </div>
       <div id="account_list">
           ${
-      !accounts.length
-          ? '<div class="not_content">未找到账号</div>'
-          : accounts
-  }
+            !accounts.length
+              ? '<div class="not_content">未找到账号</div>'
+              : accounts
+          }
       </div>
     </div>
     <div class="cus-footer">
@@ -792,151 +794,42 @@ function createScript() {
   `;
 }
 
-const jf_headers = {
-  'Cookie': 'pt_key=AAJhS-QBADDoErkj14wOrpwdToHcYH7G1D2oWaGHS3fP1kuWpAHSjQgM__8FT7I6pqPEE4DD-Xo;pt_pin=DMpling;',
-  'Accept': '*/*',
-  'Connection': 'keep-alive',
-  'Content-Type': 'application/json',
-  'Host': 'api.m.jd.com',
-  'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.4(0x1800042c) NetType/WIFI Language/zh_CN',
-  'Accept-Encoding': 'gzip, deflate, br',
-  'Accept-Language': 'zh-cn',
-};
-
-function getUrl(func, body) {
-  return `https://api.m.jd.com/api?functionId=${func}&appid=u&_=${Date.now()}&body=${encodeURIComponent(
-      JSON.stringify(body),
-  )}&loginType=2`;
-}
-
-async function searchCoupon(skuId, defaultBody = false) {
-  const body = defaultBody || {
-    funName: 'search',
-    version: 'v2',
-    param: {keyWord: skuId},
-  };
-  jf_headers.Referer = 'https://servicewechat.com/wxf463e50cd384beda/125/page-frame.html';
-  const url = getUrl('unionSearch', body);
-  const response = await $.http.post({url, headers: jf_headers});
-  const res = JSON.parse(response.body);
-  if (res.code === 200) {
-    return res.data;
-  }
-  return {};
-}
-
-async function getJFLink() {
-  const body = {
-    'funName': 'getSuperClickUrl',
-    'param': {
-      'materialInfo': $.url,
-      'ext1': '200|100_3|',
-    },
-  };
-  const url = getUrl('ConvertSuperLink', body);
-  jf_headers.Referer = 'https://servicewechat.com/wxf463e50cd384beda/114/page-frame.html';
-  const response = await $.http.post({url, headers: jf_headers});
-  const res = JSON.parse(response.body);
-  if (res.code === 200) {
-    const data = res.data;
-    let coupon = await searchCoupon(data.skuId);
-    try {
-      coupon = coupon['skuPage']['result'][0];
-    } catch (e) {
-      coupon = {};
-    }
-    let couponUrl = '';
-    if (coupon && coupon.hasCoupon === 1) {
-      const couponInfo = await searchCoupon(data.skuId, {
-        'funName': 'getCode',
-        'param': {
-          'skuId': data['skuId'],
-          'appid': 'wxf463e50cd384beda',
-          'subUnionId': '',
-          'couponUrl': coupon['couponUrl'],
-          'requestId': coupon['requestId'],
-          'needDlinkQRurl': 1,
-          'ext1': '200|100_21|',
-        },
-      });
-      couponUrl = couponInfo.shortUrl;
-    }
-    return {...data, coupon, couponUrl};
-  }
-  return {};
-}
-
 (async () => {
-  let jfScript = ``;
-  if ($.url.indexOf('item.m.jd.com') > -1) {
-    const goodsInfo = await getJFLink();
-    console.log(goodsInfo);
-    jfScript = `
-<Script>
-window.onload=()=> {
-  if(${goodsInfo.price}){
-     console.log("=====载入京粉=====")
-     $("body").append(\`<div class='tool_bar_jf' id='tool_bar_jf'> 
-<div id="jf" class="tool_bar" style="background:red">
- <img src="https://is5-ssl.mzstatic.com/image/thumb/Purple125/v4/eb/a8/f6/eba8f63a-b550-4586-b5d3-f22c0718ef81/source/100x100bb.jpg" />
-</div>
-</div>\`)
-    
-      $("#jf_mask").on("click",function() {
-        $("#jf_mask").css({visibility:"hidden"});
-      })
-      $("#jf").on("click",function() {
-         $("#jf_mask .cus-mask_view").html(\`
-         <div class="cus-content" style="padding-bottom:${getRem(0.1)}">
-            <p>价格：${goodsInfo.coupon.couponAfterPrice ||
-    goodsInfo.couponAfterPrice || goodsInfo.price}￥</p>
-            <p>京粉链接：<a href="${goodsInfo.promotionUrl}" style="color: red">${goodsInfo.promotionUrl}</a></p>
-           ${goodsInfo.couponUrl
-        ? `<p>优惠券：<a href="${goodsInfo.couponUrl}" style="color: red">${goodsInfo.couponUrl}</a></p>`
-        : ''} 
-         </div>
-         \`)
-        $("#jf_mask").css({visibility:"visible"}) 
-      })
-  }
-}    
-</Script>`;
-  }
-
   const infuseStyles = createStyle();
   const infuseScript = createScript();
   const infuseHTML = createHTML();
 
   function getInfuse() {
     return isJS
-        ? `
+      ? `
 const bodyELem = document.body;
 bodyELem.insertAdjacentHTML('beforeEnd', \`${infuseStyles}\`);
 bodyELem.insertAdjacentHTML('beforeEnd', \`${infuseHTML}\`);
 ${infuseScript.replace('<script>', '').replace('</script>', '')}
 `
-        : `
+      : `
 ${infuseStyles}
 ${infuseHTML}
 ${infuseScript}
-${jfScript}
 `;
   }
 
   const infuseText = getInfuse();
   try {
     $.html = isJS
-        ? $.html + `\n${infuseText}`
-        : $.html.replace(/(<\/html>)/, `${infuseText} </html>`);
+      ? $.html + `\n${infuseText}`
+      : $.html.replace(/(<\/html>)/, `${infuseText} </html>`);
   } catch (e) {
     console.log(e);
   }
-})().catch((error) => {
-  console.log(error);
-}).finally(() => {
-  $.headers = {...$.headers, 'Cache-Control': 'no-cache'};
-  $.done({body: $.html, headers: $.headers});
-});
+})()
+  .catch((error) => {
+    console.log(error);
+  })
+  .finally(() => {
+    $.headers = { ...$.headers, 'Cache-Control': 'no-cache' };
+    $.done({ body: $.html, headers: $.headers });
+  });
 
 function ENV() {
   const isQX = typeof $task !== 'undefined';
@@ -957,19 +850,19 @@ function ENV() {
   };
 }
 
-function HTTP(defaultOptions = {baseURL: ''}) {
-  const {isQX, isLoon, isSurge, isScriptable, isNode} = ENV();
+function HTTP(defaultOptions = { baseURL: '' }) {
+  const { isQX, isLoon, isSurge, isScriptable, isNode } = ENV();
   const methods = ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', 'PATCH'];
   const URL_REGEX =
-      /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
+    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
 
   function send(method, options) {
     options =
-        typeof options === 'string'
-            ? {
-              url: options,
-            }
-            : options;
+      typeof options === 'string'
+        ? {
+            url: options,
+          }
+        : options;
     const baseURL = defaultOptions.baseURL;
     if (baseURL && !URL_REGEX.test(options.url || '')) {
       options.url = baseURL ? baseURL + options.url : options.url;
@@ -1018,48 +911,51 @@ function HTTP(defaultOptions = {baseURL: ''}) {
       request.headers = options.headers;
       request.body = options.body;
       worker = new Promise((resolve, reject) => {
-        request.loadString().then((body) => {
-          resolve({
-            statusCode: request.response.statusCode,
-            headers: request.response.headers,
-            body,
-          });
-        }).catch((err) => reject(err));
+        request
+          .loadString()
+          .then((body) => {
+            resolve({
+              statusCode: request.response.statusCode,
+              headers: request.response.headers,
+              body,
+            });
+          })
+          .catch((err) => reject(err));
       });
     }
 
     let timeoutid;
     const timer = timeout
-        ? new Promise((_, reject) => {
+      ? new Promise((_, reject) => {
           timeoutid = setTimeout(() => {
             events.onTimeout();
             return reject(
-                `${method} URL: ${options.url} exceeds the timeout ${timeout} ms`,
+              `${method} URL: ${options.url} exceeds the timeout ${timeout} ms`,
             );
           }, timeout);
         })
-        : null;
+      : null;
 
     return (
-        timer
-            ? Promise.race([timer, worker]).then((res) => {
-              clearTimeout(timeoutid);
-              return res;
-            })
-            : worker
+      timer
+        ? Promise.race([timer, worker]).then((res) => {
+            clearTimeout(timeoutid);
+            return res;
+          })
+        : worker
     ).then((resp) => events.onResponse(resp));
   }
 
   const http = {};
   methods.forEach(
-      (method) =>
-          (http[method.toLowerCase()] = (options) => send(method, options)),
+    (method) =>
+      (http[method.toLowerCase()] = (options) => send(method, options)),
   );
   return http;
 }
 
 function API(name = 'untitled', debug = false) {
-  const {isQX, isLoon, isSurge, isNode, isJSBox, isScriptable} = ENV();
+  const { isQX, isLoon, isSurge, isNode, isJSBox, isScriptable } = ENV();
   return new (class {
     constructor(name, debug) {
       this.name = name;
@@ -1082,12 +978,12 @@ function API(name = 'untitled', debug = false) {
       this.initCache();
 
       const delay = (t, v) =>
-          new Promise(function(resolve) {
-            setTimeout(resolve.bind(null, v), t);
-          });
+        new Promise(function (resolve) {
+          setTimeout(resolve.bind(null, v), t);
+        });
 
-      Promise.prototype.delay = function(t) {
-        return this.then(function(v) {
+      Promise.prototype.delay = function (t) {
+        return this.then(function (v) {
           return delay(t, v);
         });
       };
@@ -1105,12 +1001,12 @@ function API(name = 'untitled', debug = false) {
         let fpath = 'root.json';
         if (!this.node.fs.existsSync(fpath)) {
           this.node.fs.writeFileSync(
-              fpath,
-              JSON.stringify({}),
-              {
-                flag: 'wx',
-              },
-              (err) => console.log(err),
+            fpath,
+            JSON.stringify({}),
+            {
+              flag: 'wx',
+            },
+            (err) => console.log(err),
           );
         }
         this.root = {};
@@ -1119,17 +1015,17 @@ function API(name = 'untitled', debug = false) {
         fpath = `${this.name}.json`;
         if (!this.node.fs.existsSync(fpath)) {
           this.node.fs.writeFileSync(
-              fpath,
-              JSON.stringify({}),
-              {
-                flag: 'wx',
-              },
-              (err) => console.log(err),
+            fpath,
+            JSON.stringify({}),
+            {
+              flag: 'wx',
+            },
+            (err) => console.log(err),
           );
           this.cache = {};
         } else {
           this.cache = JSON.parse(
-              this.node.fs.readFileSync(`${this.name}.json`),
+            this.node.fs.readFileSync(`${this.name}.json`),
           );
         }
       }
@@ -1142,20 +1038,20 @@ function API(name = 'untitled', debug = false) {
       if (isLoon || isSurge) $persistentStore.write(data, this.name);
       if (isNode) {
         this.node.fs.writeFileSync(
-            `${this.name}.json`,
-            data,
-            {
-              flag: 'w',
-            },
-            (err) => console.log(err),
+          `${this.name}.json`,
+          data,
+          {
+            flag: 'w',
+          },
+          (err) => console.log(err),
         );
         this.node.fs.writeFileSync(
-            'root.json',
-            JSON.stringify(this.root, null, 2),
-            {
-              flag: 'w',
-            },
-            (err) => console.log(err),
+          'root.json',
+          JSON.stringify(this.root, null, 2),
+          {
+            flag: 'w',
+          },
+          (err) => console.log(err),
         );
       }
     }
@@ -1224,12 +1120,12 @@ function API(name = 'untitled', debug = false) {
       if (isQX) $notify(title, subtitle, content, options);
       if (isSurge) {
         $notification.post(
-            title,
-            subtitle,
-            content + `${mediaURL ? '\n多媒体:' + mediaURL : ''}`,
-            {
-              url: openURL,
-            },
+          title,
+          subtitle,
+          content + `${mediaURL ? '\n多媒体:' + mediaURL : ''}`,
+          {
+            url: openURL,
+          },
         );
       }
       if (isLoon) {
@@ -1244,9 +1140,9 @@ function API(name = 'untitled', debug = false) {
       }
       if (isNode || isScriptable) {
         const content_ =
-            content +
-            (openURL ? `\n点击跳转: ${openURL}` : '') +
-            (mediaURL ? `\n多媒体: ${mediaURL}` : '');
+          content +
+          (openURL ? `\n点击跳转: ${openURL}` : '') +
+          (mediaURL ? `\n多媒体: ${mediaURL}` : '');
         if (isJSBox) {
           const push = require('push');
           push.schedule({
