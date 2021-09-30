@@ -101,7 +101,7 @@ $.mute = $.read(mute);
             value: cookieValue,
             _id: current._id,
           });
-          if (response.data.status === '1') {
+          if (response.data.status === 1) {
             response = await $.ql.enabled([current._id]);
           }
         } else {
