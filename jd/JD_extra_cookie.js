@@ -203,6 +203,7 @@ async function GetCookie() {
         '用户名: ' + DecodeName,
         '',
         tipPrefix + CookieName + 'Cookie成功 🎉',
+        { 'update-pasteboard': CookieValue },
       );
     } else {
       console.log('ck 写入失败，未找到相关 ck');
@@ -239,7 +240,9 @@ async function GetCookie() {
       if ($.mute === 'true') {
         return console.log('用户名: ' + username + '更新wskey成功 🎉');
       }
-      return $.notify('用户名: ' + username, '', '更新wskey成功 🎉');
+      return $.notify('用户名: ' + username, '', '更新wskey成功 🎉', {
+        'update-pasteboard': code,
+      });
     }
   } else {
     console.log('未匹配到相关信息，退出抓包');
