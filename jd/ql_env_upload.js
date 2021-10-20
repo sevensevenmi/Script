@@ -27,7 +27,7 @@ async function getScriptUrl() {
   const ql_script = (await getScriptUrl()) || '';
   eval(ql_script);
   await $.ql.login();
-  if (loginRes.code === 400) return $.notify(title, '', loginRes.msg);
+
   const response = await $.ql.select('');
   const delIds = response.data.map((item) => item._id);
   await $.ql.delete(delIds);
