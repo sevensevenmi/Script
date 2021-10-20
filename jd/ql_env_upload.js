@@ -41,7 +41,7 @@ async function getScriptUrl() {
   );
   console.log(`=======================恢复环境变量=======================`);
   if ($.read('mute') !== 'true') {
-    return $.notify(title, '同步成功', `同步个数：${envs.data.length} 个`);
+    return $.notify(title, '同步成功', `同步个数：${envs.length} 个`);
   }
 })()
   .catch((e) => {
