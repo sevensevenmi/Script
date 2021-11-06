@@ -6,18 +6,7 @@
 const $ = new API('ql', true);
 
 const title = '🐉 通知提示';
-const ipAddress = $.read('ip') || '';
-const baseURL = `http://${ipAddress}`;
-const urlStr = 'envs';
 
-let token = '';
-const headers = {
-  'Content-Type': `application/json;charset=UTF-8`,
-};
-const account = {
-  password: $.read('password'),
-  username: $.read('username'),
-};
 let envs = [];
 try {
   envs = JSON.parse($.read('env') || '[]');
@@ -25,20 +14,25 @@ try {
   console.log(e);
 }
 
-$.log(`登陆：${ipAddress}`);
-$.log(`账号：${account.username}`);
+async function getScriptUrl() {
+  const response = await $.http.get({
+    url: 'https://raw.githubusercontent.com/dompling/Script/master/jd/ql_api.js',
+  });
+  return response.body;
+}
 
 (async () => {
   if (!envs.length) return $.notify(title, '同步失败', '环境变量错误');
-  const loginRes = await login();
-  if (loginRes.code === 400) return $.notify(title, '', loginRes.msg);
-  token = loginRes.data.token;
-  headers.Authorization = `Bearer ${token}`;
-  const response = await getEnvs();
+
+  const ql_script = (await getScriptUrl()) || '';
+  eval(ql_script);
+  await $.ql.login();
+
+  const response = await $.ql.select('');
   const delIds = response.data.map((item) => item._id);
-  await delEnvs(delIds);
+  await $.ql.delete(delIds);
   console.log(`=======================清空环境变量=======================`);
-  await addEnvs(
+  await $.ql.add(
     envs.map((env) => ({
       name: env.name,
       value: env.value,
@@ -47,7 +41,7 @@ $.log(`账号：${account.username}`);
   );
   console.log(`=======================恢复环境变量=======================`);
   if ($.read('mute') !== 'true') {
-    return $.notify(title, '同步成功', `同步个数：${envs.data.length} 个`);
+    return $.notify(title, '同步成功', `同步个数：${envs.length} 个`);
   }
 })()
   .catch((e) => {
@@ -56,43 +50,6 @@ $.log(`账号：${account.username}`);
   .finally(() => {
     $.done();
   });
-
-function getURL(api, key = 'api') {
-  return `${baseURL}/${key}/${api}`;
-}
-
-function login() {
-  const opt = {
-    headers,
-    url: getURL('login'),
-    body: JSON.stringify(account),
-  };
-  return $.http.post(opt).then((response) => JSON.parse(response.body));
-}
-
-function getEnvs(keyword = '') {
-  const opt = { url: getURL(urlStr) + `?searchValue=${keyword}`, headers };
-  return $.http.get(opt).then((response) => JSON.parse(response.body));
-}
-
-function addEnvs(_env) {
-  const opt = { url: getURL(urlStr), headers, body: JSON.stringify(_env) };
-  return $.http.post(opt).then((response) => JSON.parse(response.body));
-}
-
-function delEnvs(ids) {
-  const opt = { url: getURL(urlStr), headers, body: JSON.stringify(ids) };
-  return $.http.delete(opt).then((response) => JSON.parse(response.body));
-}
-
-function disabled(ids) {
-  const opt = {
-    url: getURL(`${urlStr}/disable`),
-    headers,
-    body: JSON.stringify(ids),
-  };
-  return $.http.put(opt).then((response) => JSON.parse(response.body));
-}
 
 function ENV() {
   const isQX = typeof $task !== 'undefined';

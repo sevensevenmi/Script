@@ -6,18 +6,8 @@
 const $ = new API('ql', true);
 
 const title = '🐉 通知提示';
-const ipAddress = $.read('ip') || '';
-const baseURL = `http://${ipAddress}`;
-const urlStr = 'envs';
 const cookiesKey = '#CookiesJD';
-let token = '';
-const headers = {
-  'Content-Type': `application/json;charset=UTF-8`,
-};
-const account = {
-  password: $.read('password'),
-  username: $.read('username'),
-};
+
 let jd_cookies = [];
 try {
   jd_cookies = JSON.parse($.read(cookiesKey) || '[]');
@@ -30,15 +20,18 @@ function getUsername(ck) {
   return decodeURIComponent(ck.match(/pt_pin=(.+?);/)[1]);
 }
 
-$.log(`登陆：${ipAddress}`);
-$.log(`账号：${account.username}`);
-(async () => {
-  const loginRes = await login();
-  if (loginRes.code === 400) return $.notify(title, '', loginRes.msg);
-  token = loginRes.data.token;
-  headers.Authorization = `Bearer ${token}`;
-  const cookiesRes = await getCookies();
+async function getScriptUrl() {
+  const response = await $.http.get({
+    url: 'https://raw.githubusercontent.com/dompling/Script/master/jd/ql_api.js',
+  });
+  return response.body;
+}
 
+(async () => {
+  const ql_script = (await getScriptUrl()) || '';
+  eval(ql_script);
+  await $.ql.login();
+  const cookiesRes = await $.ql.select();
   const cookies = cookiesRes.data.map((item) => {
     const key = getUsername(item.value);
     return { userName: key, cookie: item.value };
@@ -48,7 +41,6 @@ $.log(`账号：${account.username}`);
     if (qlCk) return { ...item, ...qlCk };
     return item;
   });
-
   const userNames = saveCookie.map((item) => item.userName);
   cookies.forEach((ql) => {
     if (userNames.indexOf(ql.userName) === -1) saveCookie.push(ql);
@@ -68,43 +60,6 @@ $.log(`账号：${account.username}`);
   .finally(() => {
     $.done();
   });
-
-function getURL(api, key = 'api') {
-  return `${baseURL}/${key}/${api}`;
-}
-
-function login() {
-  const opt = {
-    headers,
-    url: getURL('login'),
-    body: JSON.stringify(account),
-  };
-  return $.http.post(opt).then((response) => JSON.parse(response.body));
-}
-
-function getCookies() {
-  const opt = { url: getURL(urlStr) + `?searchValue=JD_COOKIE`, headers };
-  return $.http.get(opt).then((response) => JSON.parse(response.body));
-}
-
-function addCookies(cookies) {
-  const opt = { url: getURL(urlStr), headers, body: JSON.stringify(cookies) };
-  return $.http.post(opt).then((response) => JSON.parse(response.body));
-}
-
-function delCookie(ids) {
-  const opt = { url: getURL(urlStr), headers, body: JSON.stringify(ids) };
-  return $.http.delete(opt).then((response) => JSON.parse(response.body));
-}
-
-function disabled(ids) {
-  const opt = {
-    url: getURL(`${urlStr}/disable`),
-    headers,
-    body: JSON.stringify(ids),
-  };
-  return $.http.put(opt).then((response) => JSON.parse(response.body));
-}
 
 function ENV() {
   const isQX = typeof $task !== 'undefined';
